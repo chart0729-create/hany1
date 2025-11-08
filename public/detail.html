@@ -487,10 +487,15 @@
         return { lat: dMatch[1], lng: dMatch[2] };
       }
 
+      // 패턴 3: 쿼리스트링에 daddr=10.789,106.685 형태
+      var daddrMatch = url.match(/daddr=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+      if (daddrMatch && daddrMatch.length >= 3) {
+        return { lat: daddrMatch[1], lng: daddrMatch[2] };
+      }
+
       return null;
     }
-
-    // "지도 크게 보기" 외부 링크용 URL
+// "지도 크게 보기" 외부 링크용 URL
     function buildMapOpenUrl(item) {
       if (item.mapUrl) return item.mapUrl; // 관리자에서 넣은 구글 URL 그대로
       if (item.lat && item.lng) {

@@ -889,9 +889,8 @@
           throw new Error("failed to fetch listings");
         }
         const data = await res.json();
-        if (data && Array.isArray(data.listings) && data.listings.length) {
+        if (data && data.ok && Array.isArray(data.listings) && data.listings.length) {
           listings = data.listings;
-          // 서버에서 받은 매물을 로컬스토리지에도 저장 (detail 페이지 호환용)
           try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(listings));
           } catch (e) {
@@ -903,7 +902,6 @@
       } catch (e) {
         console.error("서버 매물 불러오기 실패:", e);
       }
-      // 서버에서 못 불러온 경우 기존(기본) 데이터로 렌더
       renderList(listings);
     }
 

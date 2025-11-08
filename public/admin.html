@@ -762,7 +762,8 @@
       }
     }
 
-        async function fetchListingsFromServerForAdmin() {
+    // ===== 서버 매물 API 헬퍼 =====
+    async function fetchListingsFromServerForAdmin() {
       try {
         const res = await fetch("/api/listings");
         if (!res.ok) {
