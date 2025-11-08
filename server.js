@@ -11,7 +11,10 @@ const PORT = 3000;
 
 // 정적 파일 (index.html, admin.html, detail.html 등)
 app.use(express.static(path.join(__dirname, "public")));
-app.use(express.json());
+
+// JSON 바디 용량 제한 상향 (이미지 base64 등 큰 데이터용)
+app.use(express.json({ limit: "20mb" }));
+app.use(express.urlencoded({ limit: "20mb", extended: true }));
 
 // ========== 간단 파일 기반 사용자 DB ==========
 const USERS_DB_PATH = path.join(__dirname, "users.db.json");
@@ -239,7 +242,32 @@ app.get("/api/resolve-map", async (req, res) => {
       redirect: "follow",
     });
 
-    const finalUrl = response.url;
+    let finalUrl = response.url || "";
+
+    // maps.app.goo.gl 처럼 HTML 안에서만 google.com/maps로 넘기는 경우 처리
+    try {
+      const text = await response.text();
+      const match = text.match(/https:\/\/www\.google\.com\/maps[^"'<\s]*/);
+      if (match && match[0]) {
+        finalUrl = match[0];
+      }
+    } catch (e) {
+      // text 파싱 실패 시에는 그냥 response.url 사용
+    }
+
+    // 최종 URL이 퍼센트 인코딩되어 있으면 디코딩
+    try {
+      finalUrl = decodeURIComponent(finalUrl);
+    } catch (e) {
+      // 무시
+    }
+
+    // HTML/JS에서 사용되는 이스케이프 치환
+    finalUrl = finalUrl
+      .replace(/\\u0026amp;/g, "&")
+      .replace(/\\u003d/g, "=")
+      .replace(/&amp;/g, "&");
+
     if (!finalUrl) {
       return res.status(200).json({ error: "최종 주소를 찾을 수 없습니다." });
     }
