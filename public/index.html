@@ -389,7 +389,21 @@
       display: block;
     }
 
-    .image-nav {
+    
+    .card-contract-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(220, 38, 38, 0.92);
+      color: #ffffff;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 999px;
+      z-index: 5;
+    }
+
+.image-nav {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
@@ -568,7 +582,6 @@
       <button type="button" id="adminPageBtn" class="auth-btn hidden">관리자 페이지</button>
       <button type="button" id="logoutBtn" class="auth-btn">로그아웃</button>
     </div>
-    <button type="button" id="langToggleBtn" class="auth-btn">Tiếng Việt</button>
   </div>
 
   <!-- 회원가입/로그인 모달 -->
@@ -669,157 +682,11 @@
       <div class="bottom-buttons">
         <a id="callLink" href="tel:01000000000" class="primary">전화</a>
         <a id="kakaoLink" href="https://pf.kakao.com" target="_blank" rel="noopener noreferrer">카톡</a>
-        <a id="zaloLink" href="https://zalo.me/123456789" target="_blank" rel="noopener noreferrer">잘로</a>
-        <a id="telegramLink" href="https://t.me/your_telegram_id" target="_blank" rel="noopener noreferrer">텔레</a>
       </div>
     </div>
   </div>
 
   <script>
-    // ===== 언어 토글용 i18n =====
-    let currentLang = "ko";
-
-    const koToViText = {
-      "Hany 부동산": "Bất động sản Hany",
-      "매물 등록 / 관리 및 회원 정보를 확인할 수 있습니다.": "Bạn có thể đăng / quản lý tin và xem thông tin thành viên.",
-      "메인 페이지로": "Về trang chính",
-      "회원가입": "Đăng ký",
-      "로그인": "Đăng nhập",
-      "로그아웃": "Đăng xuất",
-      "관리자 페이지": "Trang quản trị",
-      "당신의 새로운 공간, 여기서 시작하세요.": "Không gian mới của bạn bắt đầu từ đây.",
-      "신뢰받는 한국인 전담 부동산": "Văn phòng bất động sản chuyên hỗ trợ người Hàn",
-      "오늘 신규 등록 매물": "Tin đăng mới hôm nay",
-      "건": "tin",
-      "푸미흥 · 7군 · 리버뷰 특화": "Phú Mỹ Hưng · Quận 7 · Chuyên view sông",
-      "원하는 지역 / 가격을 검색해보세요.": "Hãy tìm theo khu vực / giá bạn muốn.",
-      "📍 내 위치": "📍 Vị trí của tôi",
-      "검색": "Tìm kiếm",
-      "조건에 맞는 매물이 없습니다.": "Không có tin nào phù hợp với điều kiện.",
-      "키워드를 바꿔서 다시 검색해보세요.": "Hãy đổi từ khóa và tìm lại.",
-      "매물을 선택하면 상세 정보가 여기 표시됩니다.": "Khi chọn tin, thông tin chi tiết sẽ hiển thị tại đây.",
-      "문의 전에 캡처해두면 편해요 :)": "Chụp màn hình trước khi liên hệ sẽ tiện hơn :)",
-      "전화": "Gọi điện",
-      "카톡": "KakaoTalk",
-      "잘로": "Zalo",
-      "텔레": "Telegram",
-
-      "회원가입": "Đăng ký",
-      "닉네임": "Nickname",
-      "전화번호": "Số điện thoại",
-      "비밀번호": "Mật khẩu",
-
-      "푸미흥": "Phú Mỹ Hưng",
-      "7군": "Quận 7",
-      "1군": "Quận 1",
-      "2군": "Quận 2",
-      "투득군": "TP. Thủ Đức",
-      "빈탄군": "Quận Bình Thạnh",
-      "냐베군": "Huyện Nhà Bè",
-
-      "원룸": "Phòng 1 (studio)",
-      "1룸": "1 phòng",
-      "1.5룸": "1.5 phòng",
-      "2룸": "2 phòng",
-      "3룸 이상": "Từ 3 phòng trở lên",
-      "4룸": "4 phòng",
-      "오피스텔": "Officetel",
-      "아파트": "Căn hộ",
-      "빌라": "Biệt thự",
-      "주택": "Nhà riêng",
-      "타운하우스": "Nhà phố / townhouse",
-      "쉐어하우스": "Nhà share",
-      "상가": "Mặt bằng kinh doanh",
-      "사무실": "Văn phòng",
-      "복층": "Gác lửng / duplex",
-      "복복층": "Duplex nhiều tầng",
-      "화장실 2개": "2 nhà vệ sinh",
-      "화장실 3개": "3 nhà vệ sinh",
-      "화장실 4개": "4 nhà vệ sinh",
-
-      "전세": "Jeonse (cọc lớn, không thuê tháng)",
-      "반전세": "Bán jeonse (cọc + thuê)",
-      "월세": "Thuê tháng",
-      "단기임대": "Thuê ngắn hạn",
-
-      "풀옵션": "Full nội thất",
-      "반옵션": "Nội thất cơ bản",
-      "에어컨": "Máy lạnh",
-      "가전포함": "Bao gồm điện máy",
-      "가구포함": "Bao gồm nội thất",
-      "관리비포함": "Đã gồm phí quản lý",
-      "관리비별도": "Phí quản lý tính riêng",
-      "전기세별도": "Điện tính riêng",
-      "인터넷포함": "Bao gồm internet",
-      "청소서비스": "Có dịch vụ dọn dẹp",
-
-      "주차가능": "Có chỗ đậu xe",
-      "오토바이주차": "Đậu xe máy",
-      "반려견가능": "Cho nuôi chó",
-      "반려묘가능": "Cho nuôi mèo",
-
-      "신축": "Nhà mới xây",
-      "리모델링": "Đã sửa mới",
-      "보안24시간": "Bảo vệ 24 giờ",
-      "엘리베이터": "Thang máy",
-      "헬스장": "Phòng gym",
-      "수영장": "Hồ bơi",
-      "테라스": "Sân thượng / terrace",
-      "발코니": "Ban công",
-      "시티뷰": "View thành phố",
-      "리버뷰": "View sông",
-      "고층": "Tầng cao",
-      "저층": "Tầng thấp",
-      "즉시입주": "Vào ở ngay"
-    };
-
-    const koToViPlaceholder = {
-      "예: 푸미흥, 2룸, 1000달러": "VD: Phú Mỹ Hưng, 2 phòng, 1000 USD",
-      "예: 010-1234-5678": "VD: 010-1234-5678"
-    };
-
-    const viToKoText = {};
-    Object.keys(koToViText).forEach((k) => {
-      viToKoText[koToViText[k]] = k;
-    });
-    const viToKoPlaceholder = {};
-    Object.keys(koToViPlaceholder).forEach((k) => {
-      viToKoPlaceholder[koToViPlaceholder[k]] = k;
-    });
-
-    function applyLanguage(lang) {
-      currentLang = lang;
-      const textMap = lang === "vi" ? koToViText : viToKoText;
-      const placeholderMap = lang === "vi" ? koToViPlaceholder : viToKoPlaceholder;
-
-      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
-      let node;
-      while ((node = walker.nextNode())) {
-        const original = node.nodeValue;
-        const trimmed = original.trim();
-        if (!trimmed) continue;
-        if (textMap[trimmed]) {
-          node.nodeValue = original.replace(trimmed, textMap[trimmed]);
-        }
-      }
-
-      document.querySelectorAll("[placeholder]").forEach((el) => {
-        const ph = el.getAttribute("placeholder");
-        if (placeholderMap[ph]) {
-          el.setAttribute("placeholder", placeholderMap[ph]);
-        }
-      });
-
-      const btn = document.getElementById("langToggleBtn");
-      if (btn) {
-        btn.textContent = lang === "vi" ? "한국어" : "Tiếng Việt";
-      }
-    }
-
-    function tr(ko, vi) {
-      return currentLang === "vi" ? vi : ko;
-    }
-
     const STORAGE_KEY = "hany_listings";
 
     const defaultListings = [
@@ -880,9 +747,27 @@
       }
     }
 
-    let listings = loadListings() || defaultListings;
+    let listings = defaultListings.slice();
 
-    const langToggleBtn = document.getElementById("langToggleBtn");
+    async function fetchListingsFromServer() {
+      try {
+        const res = await fetch("/api/listings");
+        if (!res.ok) {
+          throw new Error("response not ok");
+        }
+        const data = await res.json();
+        if (data && data.ok && Array.isArray(data.listings) && data.listings.length) {
+          listings = data.listings;
+        } else {
+          listings = defaultListings.slice();
+        }
+      } catch (e) {
+        console.error("fetchListingsFromServer error", e);
+        listings = defaultListings.slice();
+      }
+      renderList(listings);
+    }
+
     const cardList = document.getElementById("cardList");
     const emptyMsg = document.getElementById("emptyMsg");
     const searchInput = document.getElementById("searchInput");
@@ -1028,8 +913,13 @@
         card.className = "card";
         card.dataset.id = item.id;
 
+        const contractBadgeHtml = item.completed
+          ? '<div class="card-contract-badge">계약완료</div>'
+          : "";
+
         card.innerHTML = `
           <div class="card-image-wrap">
+            ${contractBadgeHtml}
             <button class="image-nav left" type="button">‹</button>
             <img src="${images[currentIndex] || ""}" alt="${item.title || ""}" />
             <button class="image-nav right" type="button">›</button>
@@ -1261,15 +1151,7 @@
 
     // 초기 렌더링
     updateAuthUI();
-    renderList(listings);
-
-    if (langToggleBtn) {
-      langToggleBtn.addEventListener("click", () => {
-        const next = currentLang === "ko" ? "vi" : "ko";
-        applyLanguage(next);
-      });
-    }
-    applyLanguage("ko");
+    fetchListingsFromServer();
   </script>
 </body>
 </html>
