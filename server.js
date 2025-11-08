@@ -207,6 +207,7 @@ app.post("/api/listings", (req, res) => {
     desc: desc ? String(desc) : "",
     tags: Array.isArray(tags) ? tags : [],
     images: Array.isArray(images) ? images : [],
+    contractDone: false,
     createdAt: now,
     updatedAt: now,
   };
@@ -227,6 +228,23 @@ app.delete("/api/listings/:id", (req, res) => {
   }
   saveListingsToFile(remaining);
   return res.json({ ok: true, listings: remaining });
+});
+
+// 매물 계약 상태 변경
+app.post("/api/listings/:id/contract", (req, res) => {
+  const list = loadListingsFromFile();
+  const id = req.params.id;
+  const idx = list.findIndex((x) => String(x.id) === String(id));
+  if (idx === -1) {
+    return res
+      .status(404)
+      .json({ ok: false, error: "계약 상태를 변경할 매물을 찾을 수 없습니다." });
+  }
+  const done = !!(req.body && req.body.done);
+  list[idx].contractDone = done;
+  list[idx].updatedAt = new Date().toISOString();
+  saveListingsToFile(list);
+  return res.json({ ok: true, listing: list[idx], listings: list });
 });
 
 // ========== 짧은 구글맵 URL → 최종 긴 URL로 변환 ==========
