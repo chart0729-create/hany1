@@ -562,119 +562,142 @@
     var idParam = getQueryParam("id");
     var contentEl = document.getElementById("content");
 
-    if (!idParam) {
-      contentEl.innerHTML =
-        '<div class="empty-state">잘못된 접근입니다. 다시 목록에서 선택해주세요.</div>';
-    } else {
-      var listing = getListingById(idParam);
+    // 서버에서 단일 매물 조회 (실패 시 localStorage fallback)
+    async function loadListingFromServer(id) {
+      try {
+        const res = await fetch("/api/listings/" + encodeURIComponent(id));
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.ok && data.listing) {
+            return data.listing;
+          }
+        }
+      } catch (e) {
+        console.error("상세 매물 조회 API 오류:", e);
+      }
+      // 서버에서 가져오지 못한 경우 마지막으로 localStorage에서 시도
+      return getListingById(id);
+    }
+
+    async function initDetail() {
+      if (!idParam) {
+        contentEl.innerHTML =
+          '<div class="empty-state">잘못된 접근입니다. 다시 목록에서 선택해주세요.</div>';
+        return;
+      }
+
+      var listing = await loadListingFromServer(idParam);
       if (!listing) {
         contentEl.innerHTML =
           '<div class="empty-state">해당 매물을 찾을 수 없습니다.<br />목록에서 다시 선택해주세요.</div>';
-      } else {
-        document.title = (listing.title || "매물 상세") + " - Hany 부동산";
+        return;
+      }
 
-        var images = (listing.images && listing.images.length)
-          ? listing.images
-          : (listing.img ? [listing.img] : []);
+      document.title = (listing.title || "매물 상세") + " - Hany 부동산";
 
-        var mainImage = images.length ? images[0] : "";
-        var tagsHtml = "";
-        if (listing.tags && listing.tags.length) {
-          for (var i = 0; i < listing.tags.length; i++) {
-            tagsHtml += '<span class="tag-pill">' +
-                        listing.tags[i] +
-                        "</span>";
-          }
+      var images = (listing.images && listing.images.length)
+        ? listing.images
+        : (listing.img ? [listing.img] : []);
+
+      var mainImage = images.length ? images[0] : "";
+      var tagsHtml = "";
+      if (listing.tags && listing.tags.length) {
+        for (var i = 0; i < listing.tags.length; i++) {
+          tagsHtml += '<span class="tag-pill">' +
+                      listing.tags[i] +
+                      "</span>";
         }
+      }
 
-        var mapOpenUrl = buildMapOpenUrl(listing);
-        var mapFrameUrl = buildMapFrameUrl(listing);
+      var mapOpenUrl = buildMapOpenUrl(listing);
+      var mapFrameUrl = buildMapFrameUrl(listing);
 
-        var html = "";
+      var html = "";
 
-        // 큰 이미지 + 썸네일
-        html += '<section class="hero-card">';
-        html += '  <div class="hero-image-wrap">';
-        html += '    <img id="mainImage" src="' + (mainImage || "") + '" alt="' + (listing.title || "") + '" />';
-        if (images.length) {
-          html += '    <div class="hero-count">' + images.length + '장</div>';
-        }
-        html += '  </div>';
-        if (images.length > 1) {
-          html += '  <div class="hero-body"><div class="thumb-row" id="thumbRow"></div></div>';
-        }
-        html += '</section>';
+      // 큰 이미지 + 썸네일
+      html += '<section class="hero-card">';
+      html += '  <div class="hero-image-wrap">';
+      html += '    <img id="mainImage" src="' + (mainImage || "") + '" alt="' + (listing.title || "") + '" />';
+      if (images.length) {
+        html += '    <div class="hero-count">' + images.length + '장</div>';
+      }
+      html += '  </div>';
+      if (images.length > 1) {
+        html += '  <div class="hero-body"><div class="thumb-row" id="thumbRow"></div></div>';
+      }
+      html += '</section>';
 
-        // 기본 정보 카드
-        html += '<section class="info-card">';
-        html += '  <div class="title-row">';
-        html += '    <h2>' + (listing.title || "") + '</h2>';
-        html += '    <div class="price">' + (listing.price || "") + '</div>';
-        html += '  </div>';
-        html += '  <div class="location-line">';
-        html += '    <span>' + (listing.location || "") + '</span>';
+      // 기본 정보 카드
+      html += '<section class="info-card">';
+      html += '  <div class="title-row">';
+      html += '    <h2>' + (listing.title || "") + '</h2>';
+      html += '    <div class="price">' + (listing.price || "") + '</div>';
+      html += '  </div>';
+      html += '  <div class="location-line">';
+      html += '    <span>' + (listing.location || "") + '</span>';
+      if (mapOpenUrl) {
+        html += '    <a class="map-inline-link" href="' + mapOpenUrl +
+                '" target="_blank">지도 크게 보기</a>';
+      }
+      html += '  </div>';
+      html += '  <div class="tags-row">' + tagsHtml + '</div>';
+      var desc = listing.desc || "";
+      desc = desc.replace(/\n/g, "<br />");
+      html += '  <div class="desc">' + desc + '</div>';
+      html += '</section>';
+
+      // 지도 카드
+      if (mapFrameUrl) {
+        html += '<section class="map-card" id="mapSection">';
+        html += '  <div class="map-title-row">';
+        html += '    <span>위치 지도</span>';
         if (mapOpenUrl) {
-          html += '    <a class="map-inline-link" href="' + mapOpenUrl +
-                  '" target="_blank">지도 크게 보기</a>';
+          html += '    <a class="map-open-link" href="' + mapOpenUrl +
+                  '" target="_blank">구글 지도에서 열기</a>';
         }
         html += '  </div>';
-        html += '  <div class="tags-row">' + tagsHtml + '</div>';
-        var desc = listing.desc || "";
-        desc = desc.replace(/\n/g, "<br />");
-        html += '  <div class="desc">' + desc + '</div>';
+        html += '  <div class="map-frame-wrap">';
+        html += '    <iframe id="mapFrame" src="' + mapFrameUrl +
+                '" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>';
+        html += '  </div>';
         html += '</section>';
+      }
 
-        // 지도 카드
-        if (mapFrameUrl) {
-          html += '<section class="map-card" id="mapSection">';
-          html += '  <div class="map-title-row">';
-          html += '    <span>위치 지도</span>';
-          if (mapOpenUrl) {
-            html += '    <a class="map-open-link" href="' + mapOpenUrl +
-                    '" target="_blank">구글 지도에서 열기</a>';
-          }
-          html += '  </div>';
-          html += '  <div class="map-frame-wrap">';
-          html += '    <iframe id="mapFrame" src="' + mapFrameUrl +
-                  '" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>';
-          html += '  </div>';
-          html += '</section>';
-        }
+      // 문의 버튼
+      html += '<section class="cta-card">';
+      html += '  <a href="tel:01000000000" class="cta-btn primary">전화 문의</a>';
+      html += '  <a href="https://pf.kakao.com" target="_blank" class="cta-btn">카톡 문의</a>';
+      html += '  <a href="https://zalo.me/123456789" target="_blank" class="cta-btn">잘로</a>';
+      html += '  <a href="https://t.me/your_telegram_id" target="_blank" class="cta-btn">텔레</a>';
+      html += '</section>';
 
-        // 문의 버튼
-        html += '<section class="cta-card">';
-        html += '  <a href="tel:01000000000" class="cta-btn primary">전화 문의</a>';
-        html += '  <a href="https://pf.kakao.com" target="_blank" class="cta-btn">카톡 문의</a>';
-        html += '  <a href="https://zalo.me/123456789" target="_blank" class="cta-btn">잘로</a>';
-        html += '  <a href="https://t.me/your_telegram_id" target="_blank" class="cta-btn">텔레</a>';
-        html += '</section>';
+      contentEl.innerHTML = html;
 
-        contentEl.innerHTML = html;
+      // 썸네일 클릭 시 대표 이미지 교체
+      if (images.length > 1) {
+        var thumbRow = document.getElementById("thumbRow");
+        var mainImageEl = document.getElementById("mainImage");
 
-        // 썸네일 클릭 시 대표 이미지 교체
-        if (images.length > 1) {
-          var thumbRow = document.getElementById("thumbRow");
-          var mainImageEl = document.getElementById("mainImage");
-
-          for (var i = 0; i < images.length; i++) {
-            (function (src, idx) {
-              var t = document.createElement("div");
-              t.className = "thumb" + (idx === 0 ? " active" : "");
-              t.innerHTML = '<img src="' + src + '" alt="thumb" />';
-              t.addEventListener("click", function () {
-                mainImageEl.src = src;
-                var allThumbs = thumbRow.querySelectorAll(".thumb");
-                for (var j = 0; j < allThumbs.length; j++) {
-                  allThumbs[j].classList.remove("active");
-                }
-                t.classList.add("active");
-              });
-              thumbRow.appendChild(t);
-            })(images[i], i);
-          }
+        for (var i = 0; i < images.length; i++) {
+          (function (src, idx) {
+            var t = document.createElement("div");
+            t.className = "thumb" + (idx === 0 ? " active" : "");
+            t.innerHTML = '<img src="' + src + '" alt="thumb" />';
+            t.addEventListener("click", function () {
+              mainImageEl.src = src;
+              var allThumbs = thumbRow.querySelectorAll(".thumb");
+              for (var j = 0; j < allThumbs.length; j++) {
+                allThumbs[j].classList.remove("active");
+              }
+              t.classList.add("active");
+            });
+            thumbRow.appendChild(t);
+          })(images[i], i);
         }
       }
     }
+
+    initDetail();
 
     const langToggleBtn = document.getElementById("langToggleBtn");
     if (langToggleBtn) {
