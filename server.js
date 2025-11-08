@@ -261,33 +261,15 @@ app.get("/api/resolve-map", async (req, res) => {
     });
 
     let finalUrl = response.url || "";
-
-    // maps.app.goo.gl 처럼 HTML 안에서만 google.com/maps로 넘기는 경우 처리
-    try {
-      const text = await response.text();
-      const match = text.match(/https:\/\/www\.google\.com\/maps[^"'<\s]*/);
-      if (match && match[0]) {
-        finalUrl = match[0];
-      }
-    } catch (e) {
-      // text 파싱 실패 시에는 그냥 response.url 사용
+    if (!finalUrl) {
+      return res.status(200).json({ error: "최종 주소를 찾을 수 없습니다." });
     }
 
-    // 최종 URL이 퍼센트 인코딩되어 있으면 디코딩
+    // 🔹 여기 추가: 퍼센트 인코딩 풀기
     try {
       finalUrl = decodeURIComponent(finalUrl);
     } catch (e) {
-      // 무시
-    }
-
-    // HTML/JS에서 사용되는 이스케이프 치환
-    finalUrl = finalUrl
-      .replace(/\\u0026amp;/g, "&")
-      .replace(/\\u003d/g, "=")
-      .replace(/&amp;/g, "&");
-
-    if (!finalUrl) {
-      return res.status(200).json({ error: "최종 주소를 찾을 수 없습니다." });
+      // 디코딩 실패하면 그냥 원본 사용
     }
 
     return res.json({ fullUrl: finalUrl });
