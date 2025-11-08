@@ -1,5 +1,4 @@
 import express from "express";
-import fetch from "node-fetch";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -137,6 +136,7 @@ app.get("/api/users", (req, res) => {
   res.json({ ok: true, users: safeUsers });
 });
 
+
 // ========== 간단 파일 기반 매물 DB ==========
 const LISTINGS_DB_PATH = path.join(__dirname, "listings.db.json");
 
@@ -146,22 +146,26 @@ function loadListingsFromFile() {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
-    // 파일이 없거나 파싱 오류일 때는 빈 배열
+    // 파일이 없거나 JSON 파싱 오류면 빈 배열
     return [];
   }
 }
 
 function saveListingsToFile(listings) {
   try {
-    fs.writeFileSync(LISTINGS_DB_PATH, JSON.stringify(listings, null, 2), "utf-8");
+    fs.writeFileSync(
+      LISTINGS_DB_PATH,
+      JSON.stringify(listings, null, 2),
+      "utf-8"
+    );
   } catch (e) {
     console.error("매물 DB 저장 오류:", e);
   }
 }
 
-// ========== 매물 관련 API ==========
+// ========== 매물 API ==========
 
-// 전체 매물 목록
+// 전체 매물 조회
 app.get("/api/listings", (req, res) => {
   const list = loadListingsFromFile();
   return res.json({ ok: true, listings: list });
