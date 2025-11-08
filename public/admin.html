@@ -214,6 +214,17 @@
       color: #4f46e5;
       margin-left: 4px;
     }
+    .badge-contract {
+      display: inline-flex;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: #fee2e2;
+      color: #b91c1c;
+      margin-left: 4px;
+      border: 1px solid #fecaca;
+    }
+
 
     .json-box {
       width: 100%;
@@ -807,6 +818,7 @@
       }
     }
 
+    
     async function deleteListingOnServer(id) {
       try {
         const res = await fetch(`/api/listings/${encodeURIComponent(id)}`, {
@@ -828,7 +840,31 @@
       }
     }
 
+    async function updateContractStatusOnServer(id, done) {
+      try {
+        const res = await fetch(`/api/listings/${encodeURIComponent(id)}/contract`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ done }),
+        });
+        if (!res.ok) {
+          throw new Error("bad status");
+        }
+        const data = await res.json();
+        if (data && data.ok && Array.isArray(data.listings)) {
+          saveListings(data.listings);
+          renderList(data.listings);
+          return true;
+        }
+        return false;
+      } catch (e) {
+        console.error("계약 상태 변경 API 오류:", e);
+        return false;
+      }
+    }
+
     // ===== 폼/리스트 처리 =====
+
     function clearForm() {
       titleEl.value = "";
       priceEl.value = "";
@@ -895,19 +931,37 @@
         li.className = "list-item";
 
         const tags = (item.tags || []).map((t) => `<span class="badge-tag">${t}</span>`).join("");
+        const contractBadge = item.contractDone
+          ? `<span class="badge-contract">${currentLang === "vi" ? "Đã ký hợp đồng" : "계약완료"}</span>`
+          : "";
+        const contractBtnLabel = item.contractDone
+          ? (currentLang === "vi" ? "Bỏ hoàn tất" : "계약완료 취소")
+          : (currentLang === "vi" ? "Đánh dấu hoàn tất" : "계약완료");
 
         li.innerHTML = `
           <div class="list-main">
-            <div class="list-title">${item.title || ""}</div>
+            <div class="list-title">${item.title || ""}${contractBadge}</div>
             <div class="list-sub">
               ${item.location || ""} · ${item.price || ""}
               ${tags}
             </div>
           </div>
           <div>
+            <button class="btn-secondary btn-contract" type="button" data-id="${item.id}">${contractBtnLabel}</button>
             <button class="btn-danger" type="button" data-id="${item.id}">${currentLang === "vi" ? "Xóa" : "삭제"}</button>
           </div>
         `;
+
+        const contractBtn = li.querySelector("button.btn-contract");
+        if (contractBtn) {
+          contractBtn.addEventListener("click", async () => {
+            const nextDone = !item.contractDone;
+            const ok = await updateContractStatusOnServer(item.id, nextDone);
+            if (!ok) {
+              alert(tr("계약 상태 변경 중 오류가 발생했습니다.", "Có lỗi khi thay đổi trạng thái hợp đồng."));
+            }
+          });
+        }
 
         const delBtn = li.querySelector("button.btn-danger");
         delBtn.addEventListener("click", async () => {

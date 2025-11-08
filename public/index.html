@@ -444,6 +444,17 @@
       font-weight: 700;
       color: #1e293b;
     }
+    .badge-contract {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
 
     .card-price {
       font-size: 13px;
@@ -1061,7 +1072,10 @@
           </div>
           <div class="card-body">
             <div class="card-title-row">
-              <div class="card-title">${item.title || ""}</div>
+              <div class="card-title">
+                ${item.title || ""}
+                ${item.contractDone ? '<span class="badge-contract">계약완료</span>' : ""}
+              </div>
               <div class="card-price">${item.price || ""}</div>
             </div>
             <div class="card-meta">
