@@ -32,7 +32,13 @@
     .subtitle {
       font-size: 13px;
       color: #6b7280;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
+    }
+
+    .lang-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
     }
 
     .grid {
@@ -103,6 +109,7 @@
       resize: vertical;
       min-height: 60px;
     }
+
     .tag-group {
       display: flex;
       flex-wrap: wrap;
@@ -120,6 +127,21 @@
     }
     .tag-chip input {
       margin: 0;
+    }
+    .tag-section {
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed #e5e7eb;
+    }
+    .tag-section:last-of-type {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .tag-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #4b5563;
+      margin-bottom: 3px;
     }
 
     .btn-primary,
@@ -271,6 +293,11 @@
     <h1>Hany 부동산 관리자</h1>
     <div class="subtitle">매물 등록 / 관리 및 회원 정보를 확인할 수 있습니다.</div>
 
+    <div class="lang-bar">
+      <button class="btn-secondary" type="button" id="goMainBtn">메인 페이지로</button>
+      <button id="langToggleBtn" class="btn-secondary" type="button">Tiếng Việt</button>
+    </div>
+
     <div class="grid">
       <!-- 왼쪽: 매물 등록 / 회원 보기 -->
       <div class="left">
@@ -318,19 +345,105 @@
             <textarea id="desc" placeholder="예: 보행가 도보 5분, 관리비 포함, 반려견 가능 등"></textarea>
           </div>
 
+          <!-- 태그 -->
           <div class="form-row">
             <label>태그</label>
-            <div class="tag-group">
-              <label class="tag-chip"><input type="checkbox" value="푸미흥" /> 푸미흥</label>
-              <label class="tag-chip"><input type="checkbox" value="7군" /> 7군</label>
-              <label class="tag-chip"><input type="checkbox" value="1룸" /> 1룸</label>
-              <label class="tag-chip"><input type="checkbox" value="2룸" /> 2룸</label>
-              <label class="tag-chip"><input type="checkbox" value="오피스텔" /> 오피스텔</label>
-              <label class="tag-chip"><input type="checkbox" value="전세" /> 전세</label>
-              <label class="tag-chip"><input type="checkbox" value="월세" /> 월세</label>
+
+            <div class="tag-section">
+              <div class="tag-section-title">지역</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="푸미흥" /> 푸미흥</label>
+                <label class="tag-chip"><input type="checkbox" value="7군" /> 7군</label>
+                <label class="tag-chip"><input type="checkbox" value="1군" /> 1군</label>
+                <label class="tag-chip"><input type="checkbox" value="2군" /> 2군</label>
+                <label class="tag-chip"><input type="checkbox" value="투득군" /> 투득군</label>
+                <label class="tag-chip"><input type="checkbox" value="빈탄군" /> 빈탄군</label>
+                <label class="tag-chip"><input type="checkbox" value="냐베군" /> 냐베군</label>
+              </div>
             </div>
+
+            <div class="tag-section">
+              <div class="tag-section-title">타입</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="원룸" /> 원룸</label>
+                <label class="tag-chip"><input type="checkbox" value="1룸" /> 1룸</label>
+                <label class="tag-chip"><input type="checkbox" value="1.5룸" /> 1.5룸</label>
+                <label class="tag-chip"><input type="checkbox" value="2룸" /> 2룸</label>
+                <label class="tag-chip"><input type="checkbox" value="3룸 이상" /> 3룸 이상</label>
+                <label class="tag-chip"><input type="checkbox" value="4룸" /> 4룸</label>
+                <label class="tag-chip"><input type="checkbox" value="오피스텔" /> 오피스텔</label>
+                <label class="tag-chip"><input type="checkbox" value="아파트" /> 아파트</label>
+                <label class="tag-chip"><input type="checkbox" value="빌라" /> 빌라</label>
+                <label class="tag-chip"><input type="checkbox" value="주택" /> 주택</label>
+                <label class="tag-chip"><input type="checkbox" value="타운하우스" /> 타운하우스</label>
+                <label class="tag-chip"><input type="checkbox" value="쉐어하우스" /> 쉐어하우스</label>
+                <label class="tag-chip"><input type="checkbox" value="상가" /> 상가</label>
+                <label class="tag-chip"><input type="checkbox" value="사무실" /> 사무실</label>
+                <label class="tag-chip"><input type="checkbox" value="복층" /> 복층</label>
+                <label class="tag-chip"><input type="checkbox" value="복복층" /> 복복층</label>
+                <label class="tag-chip"><input type="checkbox" value="화장실 2개" /> 화장실 2개</label>
+                <label class="tag-chip"><input type="checkbox" value="화장실 3개" /> 화장실 3개</label>
+                <label class="tag-chip"><input type="checkbox" value="화장실 4개" /> 화장실 4개</label>
+              </div>
+            </div>
+
+            <div class="tag-section">
+              <div class="tag-section-title">계약형태</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="전세" /> 전세</label>
+                <label class="tag-chip"><input type="checkbox" value="반전세" /> 반전세</label>
+                <label class="tag-chip"><input type="checkbox" value="월세" /> 월세</label>
+                <label class="tag-chip"><input type="checkbox" value="단기임대" /> 단기임대</label>
+              </div>
+            </div>
+
+            <div class="tag-section">
+              <div class="tag-section-title">옵션</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="풀옵션" /> 풀옵션</label>
+                <label class="tag-chip"><input type="checkbox" value="반옵션" /> 반옵션</label>
+                <label class="tag-chip"><input type="checkbox" value="에어컨" /> 에어컨</label>
+                <label class="tag-chip"><input type="checkbox" value="가전포함" /> 가전포함</label>
+                <label class="tag-chip"><input type="checkbox" value="가구포함" /> 가구포함</label>
+                <label class="tag-chip"><input type="checkbox" value="관리비포함" /> 관리비 포함</label>
+                <label class="tag-chip"><input type="checkbox" value="관리비별도" /> 관리비 별도</label>
+                <label class="tag-chip"><input type="checkbox" value="전기세별도" /> 전기세 별도</label>
+                <label class="tag-chip"><input type="checkbox" value="인터넷포함" /> 인터넷 포함</label>
+                <label class="tag-chip"><input type="checkbox" value="청소서비스" /> 청소 서비스</label>
+              </div>
+            </div>
+
+            <div class="tag-section">
+              <div class="tag-section-title">주차 · 반려동물</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="주차가능" /> 주차 가능</label>
+                <label class="tag-chip"><input type="checkbox" value="오토바이주차" /> 오토바이 주차</label>
+                <label class="tag-chip"><input type="checkbox" value="반려견가능" /> 반려견 가능</label>
+                <label class="tag-chip"><input type="checkbox" value="반려묘가능" /> 반려묘 가능</label>
+              </div>
+            </div>
+
+            <div class="tag-section">
+              <div class="tag-section-title">편의시설</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="신축" /> 신축</label>
+                <label class="tag-chip"><input type="checkbox" value="리모델링" /> 리모델링</label>
+                <label class="tag-chip"><input type="checkbox" value="보안24시간" /> 보안 24시간</label>
+                <label class="tag-chip"><input type="checkbox" value="엘리베이터" /> 엘리베이터</label>
+                <label class="tag-chip"><input type="checkbox" value="헬스장" /> 헬스장</label>
+                <label class="tag-chip"><input type="checkbox" value="수영장" /> 수영장</label>
+                <label class="tag-chip"><input type="checkbox" value="테라스" /> 테라스</label>
+                <label class="tag-chip"><input type="checkbox" value="발코니" /> 발코니</label>
+                <label class="tag-chip"><input type="checkbox" value="시티뷰" /> 시티뷰</label>
+                <label class="tag-chip"><input type="checkbox" value="리버뷰" /> 리버뷰</label>
+                <label class="tag-chip"><input type="checkbox" value="고층" /> 고층</label>
+                <label class="tag-chip"><input type="checkbox" value="저층" /> 저층</label>
+                <label class="tag-chip"><input type="checkbox" value="즉시입주" /> 즉시 입주</label>
+              </div>
+            </div>
+
             <div class="help-text">
-              해당 매물에 어울리는 태그를 선택해주세요.
+              해당 매물에 어울리는 태그를 선택해주세요. (지역 / 타입 / 계약 형태 / 옵션 / 편의 등)
             </div>
           </div>
 
@@ -400,7 +513,171 @@
   </div>
 
   <script>
+    // ===== 언어 토글용 i18n =====
+    let currentLang = "ko";
+
+    const koToViText = {
+      "Hany 부동산 관리자": "Quản lý bất động sản Hany",
+      "매물 등록 / 관리 및 회원 정보를 확인할 수 있습니다.": "Bạn có thể đăng / quản lý tin và xem thông tin thành viên.",
+      "메인 페이지로": "Về trang chính",
+      "새 매물 등록": "Đăng tin mới",
+      "제목": "Tiêu đề",
+      "가격": "Giá",
+      "위치": "Vị trí",
+      "구글 지도 링크": "Link Google Maps",
+      "설명": "Mô tả",
+      "태그": "Thẻ (tag)",
+      "지역": "Khu vực",
+      "타입": "Loại phòng",
+      "계약형태": "Hình thức hợp đồng",
+      "옵션": "Tùy chọn / Nội thất",
+      "주차 · 반려동물": "Đậu xe · Thú cưng",
+      "편의시설": "Tiện ích tòa nhà",
+      "이미지 (여러 장 선택 가능)": "Hình ảnh (có thể chọn nhiều hình)",
+      "이미지 미리보기": "Xem trước hình ảnh",
+      "회원 보기": "Danh sách thành viên",
+      "회원 목록 불러오기": "Tải danh sách thành viên",
+      "등록된 매물": "Tin đã đăng",
+      "JSON 미리보기 / 백업": "Xem trước JSON / Sao lưu",
+      "해당 매물에 어울리는 태그를 선택해주세요. (지역 / 타입 / 계약 형태 / 옵션 / 편의 등)": "Hãy chọn các thẻ phù hợp với tin này. (Khu vực / Loại / Hợp đồng / Nội thất / Tiện ích...)",
+      "모바일 사진첩 / 컴퓨터 파일에서 이미지를 선택하면 자동으로 미리보기가 생성됩니다.": "Chọn hình từ điện thoại hoặc máy tính, phần xem trước sẽ tự hiển thị.",
+      "서버 또는 브라우저에 저장된 회원 정보를 불러와 보여줍니다.": "Hiển thị danh sách thành viên lưu trên server hoặc trình duyệt.",
+      "현재 로그인 중인 회원은 초록색 점으로 표시됩니다.": "Thành viên đang đăng nhập sẽ có chấm xanh.",
+      "Hany 부동산 메인 화면(index.html)에서 불러오는 데이터입니다.": "Dữ liệu được trang chính Hany (index.html) sử dụng.",
+      "문제가 발생했을 때 이 내용을 복사해두면 복구가 수월합니다.": "Khi có lỗi, bạn có thể sao chép nội dung này để khôi phục dễ dàng.",
+      "매물 등록": "Đăng tin",
+      "입력 초기화": "Xóa nội dung",
+      "주소변환": "Chuyển đổi địa chỉ",
+      "등록된 매물이 없습니다.": "Chưa có tin nào được đăng.",
+      "불러오는 중...": "Đang tải...",
+      "등록된 회원이 없습니다.": "Chưa có thành viên nào.",
+      "관리자": "Quản trị viên",
+      "회원": "Thành viên",
+      "현재 로그인": "Đang đăng nhập",
+      "전화번호 미입력": "Chưa có số điện thoại",
+
+      "푸미흥": "Phú Mỹ Hưng",
+      "7군": "Quận 7",
+      "1군": "Quận 1",
+      "2군": "Quận 2",
+      "투득군": "TP. Thủ Đức",
+      "빈탄군": "Quận Bình Thạnh",
+      "냐베군": "Huyện Nhà Bè",
+
+      "원룸": "Phòng 1 (studio)",
+      "1룸": "1 phòng",
+      "1.5룸": "1.5 phòng",
+      "2룸": "2 phòng",
+      "3룸 이상": "Từ 3 phòng trở lên",
+      "4룸": "4 phòng",
+      "오피스텔": "Officetel",
+      "아파트": "Căn hộ",
+      "빌라": "Biệt thự",
+      "주택": "Nhà riêng",
+      "타운하우스": "Nhà phố / townhouse",
+      "쉐어하우스": "Nhà share",
+      "상가": "Mặt bằng kinh doanh",
+      "사무실": "Văn phòng",
+      "복층": "Gác lửng / duplex",
+      "복복층": "Duplex nhiều tầng",
+      "화장실 2개": "2 nhà vệ sinh",
+      "화장실 3개": "3 nhà vệ sinh",
+      "화장실 4개": "4 nhà vệ sinh",
+
+      "전세": "Jeonse (cọc lớn, không thuê tháng)",
+      "반전세": "Bán jeonse (cọc + thuê)",
+      "월세": "Thuê tháng",
+      "단기임대": "Thuê ngắn hạn",
+
+      "풀옵션": "Full nội thất",
+      "반옵션": "Nội thất cơ bản",
+      "에어컨": "Máy lạnh",
+      "가전포함": "Bao gồm điện máy",
+      "가구포함": "Bao gồm nội thất",
+      "관리비포함": "Đã gồm phí quản lý",
+      "관리비별도": "Phí quản lý tính riêng",
+      "전기세별도": "Điện tính riêng",
+      "인터넷포함": "Bao gồm internet",
+      "청소서비스": "Có dịch vụ dọn dẹp",
+
+      "주차가능": "Có chỗ đậu xe",
+      "오토바이주차": "Đậu xe máy",
+      "반려견가능": "Cho nuôi chó",
+      "반려묘가능": "Cho nuôi mèo",
+
+      "신축": "Nhà mới xây",
+      "리모델링": "Đã sửa mới",
+      "보안24시간": "Bảo vệ 24 giờ",
+      "엘리베이터": "Thang máy",
+      "헬스장": "Phòng gym",
+      "수영장": "Hồ bơi",
+      "테라스": "Sân thượng / terrace",
+      "발코니": "Ban công",
+      "시티뷰": "View thành phố",
+      "리버뷰": "View sông",
+      "고층": "Tầng cao",
+      "저층": "Tầng thấp",
+      "즉시입주": "Vào ở ngay"
+    };
+
+    const koToViPlaceholder = {
+      "예: 푸미흥 2룸 오피스텔": "VD: Phú Mỹ Hưng căn 2 phòng ngủ",
+      "예: 보증금 1,000 / 월세 900": "VD: Cọc 1.000 / Thuê 900",
+      "예: 호치민 푸미흥, 7군": "VD: HCM Phú Mỹ Hưng, Quận 7",
+      "https://maps.app.goo.gl/... 또는 https://maps.google.com/...": "https://maps.app.goo.gl/... hoặc https://maps.google.com/...",
+      "예: 보행가 도보 5분, 관리비 포함, 반려견 가능 등": "VD: Cách phố đi bộ 5 phút, đã gồm phí quản lý, cho nuôi chó nhỏ..."
+    };
+
+    const viToKoText = {};
+    Object.keys(koToViText).forEach((k) => {
+      viToKoText[koToViText[k]] = k;
+    });
+    const viToKoPlaceholder = {};
+    Object.keys(koToViPlaceholder).forEach((k) => {
+      viToKoPlaceholder[koToViPlaceholder[k]] = k;
+    });
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      const textMap = lang === "vi" ? koToViText : viToKoText;
+      const placeholderMap = lang === "vi" ? koToViPlaceholder : viToKoPlaceholder;
+
+      // 텍스트 노드 전체 돌면서 교체
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      let node;
+      while ((node = walker.nextNode())) {
+        const original = node.nodeValue;
+        const trimmed = original.trim();
+        if (!trimmed) continue;
+        if (textMap[trimmed]) {
+          node.nodeValue = original.replace(trimmed, textMap[trimmed]);
+        }
+      }
+
+      // placeholder 교체
+      document.querySelectorAll("[placeholder]").forEach((el) => {
+        const ph = el.getAttribute("placeholder");
+        if (placeholderMap[ph]) {
+          el.setAttribute("placeholder", placeholderMap[ph]);
+        }
+      });
+
+      // 버튼 텍스트 변경
+      const btn = document.getElementById("langToggleBtn");
+      if (btn) {
+        btn.textContent = lang === "vi" ? "한국어" : "Tiếng Việt";
+      }
+
+      document.documentElement.setAttribute("data-lang", lang);
+    }
+
+    // alert, 메시지에서 쓸 간단 헬퍼
+    function tr(ko, vi) {
+      return currentLang === "vi" ? vi : ko;
+    }
+
     // ===== 공통 DOM =====
+    const goMainBtn = document.getElementById("goMainBtn");
     const titleEl = document.getElementById("title");
     const priceEl = document.getElementById("price");
     const locationEl = document.getElementById("location");
@@ -413,11 +690,25 @@
     const saveBtn = document.getElementById("saveBtn");
     const clearBtn = document.getElementById("clearBtn");
     const resolveMapBtn = document.getElementById("resolveMapBtn");
+    const langToggleBtn = document.getElementById("langToggleBtn");
 
     const loadUsersBtn = document.getElementById("loadUsersBtn");
     const userListContainer = document.getElementById("userListContainer");
 
     const STORAGE_KEY = "hany_listings";
+
+    if (langToggleBtn) {
+      langToggleBtn.addEventListener("click", () => {
+        const next = currentLang === "ko" ? "vi" : "ko";
+        applyLanguage(next);
+      });
+    }
+
+    if (goMainBtn) {
+      goMainBtn.addEventListener("click", () => {
+        window.location.href = "index.html";
+      });
+    }
 
     // ===== 이미지 미리보기 =====
     let currentImages = [];
@@ -451,72 +742,22 @@
     });
 
     // ===== 로컬 저장소 =====
-    
-    // ===== 매물 캐시 & 서버 동기화 =====
-    let listingCache = [];
-
     function loadListings() {
-      return Array.isArray(listingCache) ? listingCache.slice() : [];
-    }
-
-    function saveListings(list) {
-      listingCache = Array.isArray(list) ? list.slice() : [];
-    }
-
-    async function refreshListingsFromServer() {
       try {
-        const res = await fetch("/api/listings");
-        if (!res.ok) {
-          console.error("listings fetch failed", res.status);
-          renderList(loadListings());
-          return;
-        }
-        const data = await res.json();
-        if (data && data.ok && Array.isArray(data.listings)) {
-          saveListings(data.listings);
-          const current = loadListings();
-          renderList(current);
-          if (jsonBox) {
-            jsonBox.value = JSON.stringify(current, null, 2);
-          }
-        } else {
-          console.error("listings response invalid", data);
-        }
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
       } catch (e) {
-        console.error("refreshListingsFromServer error", e);
+        console.error(e);
+        return [];
       }
     }
 
-    async function createListingOnServer(item) {
-      const res = await fetch("/api/listings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item),
-      });
-      return res.json();
-    }
-
-    async function deleteListingOnServer(id) {
-      const res = await fetch("/api/listings/" + encodeURIComponent(id), {
-        method: "DELETE",
-      });
-      return res.json();
-    }
-
-    async function toggleCompleteOnServer(id, completed) {
-      const res = await fetch(
-        "/api/listings/" + encodeURIComponent(id) + "/complete",
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ completed }),
-        }
-      );
-      return res.json();
-    }
-
-    // ===== 폼/리스트 처리 =====
- catch (e) {
+    function saveListings(list) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      } catch (e) {
         console.error(e);
       }
     }
@@ -540,114 +781,107 @@
       resolveMapBtn.addEventListener("click", async () => {
         const shortUrl = mapUrlEl.value.trim();
         if (!shortUrl) {
-          alert("먼저 구글 지도 링크를 입력해주세요.");
+          alert(tr("먼저 구글 지도 링크를 입력해주세요.", "Hãy nhập link Google Maps trước."));
           return;
         }
         try {
           const res = await fetch("/api/resolve-map?url=" + encodeURIComponent(shortUrl));
           if (!res.ok) {
-            alert("주소 변환 요청에 실패했습니다. (서버 응답 없음)");
+            alert(tr(
+              "주소 변환 요청에 실패했습니다. (서버 응답 없음)",
+              "Không chuyển đổi được địa chỉ. (Server không phản hồi)"
+            ));
             return;
           }
           const data = await res.json();
           if (data.fullUrl) {
             mapUrlEl.value = data.fullUrl;
-            alert("구글 지도 주소가 변환되었습니다.");
+            alert(tr("구글 지도 주소가 변환되었습니다.", "Đã chuyển đổi địa chỉ Google Maps."));
           } else {
-            alert(data.error || "주소를 변환하지 못했습니다.");
+            alert(tr(
+              "주소를 변환하지 못했습니다.",
+              "Không thể chuyển đổi địa chỉ."
+            ));
           }
         } catch (e) {
           console.error(e);
-          alert("주소 변환 중 오류가 발생했습니다.");
+          alert(tr(
+            "주소 변환 중 오류가 발생했습니다.",
+            "Đã xảy ra lỗi khi chuyển đổi địa chỉ."
+          ));
         }
       });
     }
 
-    
     function renderList(list) {
-      listContainer.innerHTML = "";
-      if (!list.length) {
-        listContainer.innerHTML =
-          '<div style="padding:8px 10px;font-size:12px;color:#6b7280;">등록된 매물이 없습니다.</div>';
-        if (jsonBox) {
-          jsonBox.value = "[]";
-        }
-        return;
-      }
+  listContainer.innerHTML = "";
+  if (!list.length) {
+    listContainer.innerHTML =
+      '<div style="padding:8px 10px;font-size:12px;color:#6b7280;">' +
+      (currentLang === "vi"
+        ? "Chưa có tin nào được đăng."
+        : "등록된 매물이 없습니다.") +
+      "</div>";
+    jsonBox.value = "[]";
+    return;
+  }
 
-      list.forEach((item) => {
-        const li = document.createElement("div");
-        li.className = "list-item";
+  list.forEach((item) => {
+    const li = document.createElement("div");
+    const isCompleted = !!item.completed;
 
-        const tags = (item.tags || []).map((t) => `<span class="badge-tag">${t}</span>`).join("");
-        const statusBadge = item.completed
-          ? '<span class="badge-tag" style="background:#fee2e2;color:#b91c1c;">계약완료</span>'
-          : "";
+    li.className = "list-item" + (isCompleted ? " completed" : "");
 
-        li.innerHTML = `
-          <div class="list-main">
-            <div class="list-title">${item.title || ""}</div>
-            <div class="list-sub">
-              ${item.location || ""} · ${item.price || ""}
-              ${tags} ${statusBadge}
-            </div>
-          </div>
-          <div style="display:flex; gap:4px;">
-            <button class="btn-secondary btn-complete" type="button" data-id="${item.id}">
-              ${item.completed ? "계약완료 해제" : "계약완료"}
-            </button>
-            <button class="btn-danger btn-delete" type="button" data-id="${item.id}">삭제</button>
-          </div>
-        `;
+    const tags = (item.tags || [])
+      .map((t) => `<span class="badge-tag">${t}</span>`)
+      .join("");
 
-        const delBtn = li.querySelector(".btn-delete");
-        const completeBtn = li.querySelector(".btn-complete");
+    li.innerHTML = `
+      <div class="list-main">
+        <div class="list-title">
+          ${item.title || ""}
+          ${
+            isCompleted
+              ? '<span class="list-completed-badge">' +
+                (currentLang === "vi" ? "Đã ký hợp đồng" : "계약완료") +
+                "</span>"
+              : ""
+          }
+        </div>
+        <div class="list-sub">
+          ${item.location || ""} · ${item.price || ""}
+          ${tags}
+        </div>
+      </div>
+      <div>
+        <button class="btn-secondary complete-toggle" type="button"
+          data-id="${item.id}"
+          data-completed="${isCompleted ? "1" : "0"}">
+          ${
+            isCompleted
+              ? currentLang === "vi"
+                ? "Bỏ hoàn tất"
+                : "계약완료 해제"
+              : currentLang === "vi"
+              ? "Hoàn tất hợp đồng"
+              : "계약완료"
+          }
+        </button>
+        <button class="btn-danger" type="button"
+          data-id="${item.id}">
+          ${currentLang === "vi" ? "Xóa" : "삭제"}
+        </button>
+      </div>
+    `;
 
-        if (delBtn) {
-          delBtn.addEventListener("click", async () => {
-            if (!confirm("정말 이 매물을 삭제하시겠습니까?")) return;
-            try {
-              const res = await deleteListingOnServer(item.id);
-              if (!res || !res.ok) {
-                alert(res && res.error ? res.error : "매물 삭제에 실패했습니다.");
-                return;
-              }
-              await refreshListingsFromServer();
-            } catch (e) {
-              console.error(e);
-              alert("서버와 통신 중 오류가 발생했습니다.");
-            }
-          });
-        }
+    listContainer.appendChild(li);
+  });
 
-        if (completeBtn) {
-          completeBtn.addEventListener("click", async () => {
-            const targetState = !item.completed;
-            try {
-              const res = await toggleCompleteOnServer(item.id, targetState);
-              if (!res || !res.ok) {
-                alert(res && res.error ? res.error : "계약완료 상태 변경에 실패했습니다.");
-                return;
-              }
-              await refreshListingsFromServer();
-            } catch (e) {
-              console.error(e);
-              alert("서버와 통신 중 오류가 발생했습니다.");
-            }
-          });
-        }
-
-        listContainer.appendChild(li);
-      });
-
-      if (jsonBox) {
-        jsonBox.value = JSON.stringify(list, null, 2);
-      }
-    }
+  jsonBox.value = JSON.stringify(list, null, 2);
+}
 
 
-    
-    async function handleSaveListing() {
+    function handleSaveListing() {
       const title = titleEl.value.trim();
       const price = priceEl.value.trim();
       const location = locationEl.value.trim();
@@ -655,7 +889,7 @@
       const desc = descEl.value.trim();
 
       if (!title) {
-        alert("제목은 필수입니다.");
+        alert(tr("제목은 필수입니다.", "Tiêu đề là bắt buộc."));
         return;
       }
 
@@ -663,31 +897,26 @@
         document.querySelectorAll(".tag-group input[type=checkbox]:checked")
       ).map((el) => el.value);
 
+      const list = loadListings();
+      const newId = Date.now();
+
       const item = {
+        id: newId,
         title,
         price,
         location,
         desc,
         tags,
         mapUrl,
-        images: currentImages.slice(),
+        images: currentImages.slice()
       };
 
-      try {
-        const res = await createListingOnServer(item);
-        if (!res || !res.ok) {
-          alert(res && res.error ? res.error : "매물 등록에 실패했습니다.");
-          return;
-        }
-        await refreshListingsFromServer();
-        alert("매물이 등록되었습니다.");
-        clearForm();
-      } catch (e) {
-        console.error(e);
-        alert("서버와 통신 중 오류가 발생했습니다.");
-      }
+      list.push(item);
+      saveListings(list);
+      alert(tr("매물이 등록되었습니다.", "Tin đã được đăng."));
+      renderList(list);
+      clearForm();
     }
-
 
     if (saveBtn) {
       saveBtn.addEventListener("click", handleSaveListing);
@@ -723,7 +952,9 @@
       userListContainer.innerHTML = "";
       if (!users || !users.length) {
         userListContainer.innerHTML =
-          '<div style="font-size:12px;color:#777;">등록된 회원이 없습니다.</div>';
+          '<div style="font-size:12px;color:#777;">' +
+          (currentLang === "vi" ? "Chưa có thành viên nào." : "등록된 회원이 없습니다.") +
+          "</div>";
         return;
       }
       const currentIdLike = getCurrentUserIdLike();
@@ -739,8 +970,12 @@
           }
         }
 
-        const roleLabel = u.role === "admin" ? "관리자" : "회원";
-        const phoneText = u.phone ? u.phone : "전화번호 미입력";
+        const roleLabel = u.role === "admin"
+          ? (currentLang === "vi" ? "Quản trị viên" : "관리자")
+          : (currentLang === "vi" ? "Thành viên" : "회원");
+        const phoneText = u.phone
+          ? u.phone
+          : (currentLang === "vi" ? "Chưa có số điện thoại" : "전화번호 미입력");
 
         div.innerHTML =
           '<div class="user-main">' +
@@ -760,7 +995,9 @@
           "</div>" +
           '<div class="user-item-right">' +
           (isCurrent
-            ? '<span class="current-indicator"></span><span>현재 로그인</span>'
+            ? '<span class="current-indicator"></span><span>' +
+              (currentLang === "vi" ? "Đang đăng nhập" : "현재 로그인") +
+              "</span>"
             : "") +
           "</div>";
 
@@ -772,16 +1009,28 @@
       try {
         const res = await fetch("/api/users", { method: "GET" });
         if (!res.ok) {
-          return { error: "서버에서 회원 목록 API(/api/users)를 찾을 수 없습니다." };
+          return {
+            error: currentLang === "vi"
+              ? "Không tìm thấy API danh sách thành viên (/api/users) trên server."
+              : "서버에서 회원 목록 API(/api/users)를 찾을 수 없습니다."
+          };
         }
         const data = await res.json();
         if (data && data.ok && Array.isArray(data.users)) {
           return { users: data.users };
         }
-        return { error: data && data.error ? data.error : "회원 목록 응답 형식이 올바르지 않습니다." };
+        return {
+          error: currentLang === "vi"
+            ? "Định dạng dữ liệu danh sách thành viên không hợp lệ."
+            : "회원 목록 응답 형식이 올바르지 않습니다."
+        };
       } catch (e) {
         console.error(e);
-        return { error: "서버 요청 중 오류가 발생했습니다." };
+        return {
+          error: currentLang === "vi"
+            ? "Đã xảy ra lỗi khi yêu cầu server."
+            : "서버 요청 중 오류가 발생했습니다."
+        };
       }
     }
 
@@ -800,7 +1049,9 @@
     async function handleLoadUsers() {
       if (!userListContainer) return;
       userListContainer.innerHTML =
-        '<div style="font-size:12px;color:#777;">불러오는 중...</div>';
+        '<div style="font-size:12px;color:#777;">' +
+        (currentLang === "vi" ? "Đang tải..." : "불러오는 중...") +
+        "</div>";
 
       // 1) 서버에서 먼저 시도
       const result = await fetchUsersFromServer();
@@ -813,16 +1064,26 @@
       const localUsers = loadUsersFromLocal();
       if (localUsers.length) {
         renderUsers(localUsers);
-        alert("서버에서 회원 목록을 가져오지 못해, 브라우저에 저장된 회원 목록을 대신 표시합니다.");
+        alert(
+          currentLang === "vi"
+            ? "Không lấy được danh sách thành viên từ server, đang hiển thị dữ liệu lưu trên trình duyệt."
+            : "서버에서 회원 목록을 가져오지 못해, 브라우저에 저장된 회원 목록을 대신 표시합니다."
+        );
         return;
       }
 
       userListContainer.innerHTML =
-        '<div style="font-size:12px;color:#777;">등록된 회원이 없습니다.</div>';
+        '<div style="font-size:12px;color:#777;">' +
+        (currentLang === "vi" ? "Chưa có thành viên nào." : "등록된 회원이 없습니다.") +
+        "</div>";
       if (result && result.error) {
         alert(result.error);
       } else {
-        alert("회원 목록을 가져오지 못했습니다.");
+        alert(
+          currentLang === "vi"
+            ? "Không lấy được danh sách thành viên."
+            : "회원 목록을 가져오지 못했습니다."
+        );
       }
     }
 
@@ -831,7 +1092,26 @@
     }
 
     // ===== 초기 렌더 =====
-    refreshListingsFromServer();
+    const initialList = loadListings();
+    renderList(initialList);
+    applyLanguage("ko");
+
+/* 계약완료 상태 표시용 */
+.list-item.completed .list-title {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+.list-completed-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  font-size: 11px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #ffffff;
+  margin-left: 6px;
+}
+
   </script>
 </body>
 </html>
