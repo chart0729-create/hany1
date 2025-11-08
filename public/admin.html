@@ -762,6 +762,71 @@
       }
     }
 
+        async function fetchListingsFromServerForAdmin() {
+      try {
+        const res = await fetch("/api/listings");
+        if (!res.ok) {
+          throw new Error("failed to fetch listings");
+        }
+        const data = await res.json();
+        if (data && Array.isArray(data.listings)) {
+          saveListings(data.listings);
+          renderList(data.listings);
+          return;
+        }
+      } catch (e) {
+        console.error("서버 매물 불러오기 실패:", e);
+      }
+      const localList = loadListings();
+      renderList(localList);
+    }
+
+    async function createListingOnServer(payload) {
+      try {
+        const res = await fetch("/api/listings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          throw new Error("bad status");
+        }
+        const data = await res.json();
+        if (data && data.ok) {
+          if (Array.isArray(data.listings)) {
+            saveListings(data.listings);
+            renderList(data.listings);
+          }
+          return data;
+        }
+        return null;
+      } catch (e) {
+        console.error("매물 등록 API 오류:", e);
+        return null;
+      }
+    }
+
+    async function deleteListingOnServer(id) {
+      try {
+        const res = await fetch(`/api/listings/${encodeURIComponent(id)}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) {
+          throw new Error("bad status");
+        }
+        const data = await res.json();
+        if (data && data.ok && Array.isArray(data.listings)) {
+          saveListings(data.listings);
+          renderList(data.listings);
+          return true;
+        }
+        return false;
+      } catch (e) {
+        console.error("매물 삭제 API 오류:", e);
+        return false;
+      }
+    }
+
     // ===== 폼/리스트 처리 =====
     function clearForm() {
       titleEl.value = "";
@@ -814,72 +879,50 @@
     }
 
     function renderList(list) {
-  listContainer.innerHTML = "";
-  if (!list.length) {
-    listContainer.innerHTML =
-      '<div style="padding:8px 10px;font-size:12px;color:#6b7280;">' +
-      (currentLang === "vi"
-        ? "Chưa có tin nào được đăng."
-        : "등록된 매물이 없습니다.") +
-      "</div>";
-    jsonBox.value = "[]";
-    return;
-  }
+      listContainer.innerHTML = "";
+      if (!list.length) {
+        listContainer.innerHTML =
+          '<div style="padding:8px 10px;font-size:12px;color:#6b7280;">' +
+          (currentLang === "vi" ? "Chưa có tin nào được đăng." : "등록된 매물이 없습니다.") +
+          "</div>";
+        jsonBox.value = "[]";
+        return;
+      }
 
-  list.forEach((item) => {
-    const li = document.createElement("div");
-    const isCompleted = !!item.completed;
+      list.forEach((item) => {
+        const li = document.createElement("div");
+        li.className = "list-item";
 
-    li.className = "list-item" + (isCompleted ? " completed" : "");
+        const tags = (item.tags || []).map((t) => `<span class="badge-tag">${t}</span>`).join("");
 
-    const tags = (item.tags || [])
-      .map((t) => `<span class="badge-tag">${t}</span>`)
-      .join("");
+        li.innerHTML = `
+          <div class="list-main">
+            <div class="list-title">${item.title || ""}</div>
+            <div class="list-sub">
+              ${item.location || ""} · ${item.price || ""}
+              ${tags}
+            </div>
+          </div>
+          <div>
+            <button class="btn-danger" type="button" data-id="${item.id}">${currentLang === "vi" ? "Xóa" : "삭제"}</button>
+          </div>
+        `;
 
-    li.innerHTML = `
-      <div class="list-main">
-        <div class="list-title">
-          ${item.title || ""}
-          ${
-            isCompleted
-              ? '<span class="list-completed-badge">' +
-                (currentLang === "vi" ? "Đã ký hợp đồng" : "계약완료") +
-                "</span>"
-              : ""
+        const delBtn = li.querySelector("button.btn-danger");
+        delBtn.addEventListener("click", async () => {
+          if (!confirm(tr("정말 이 매물을 삭제하시겠습니까?", "Bạn có chắc muốn xóa tin này không?")))
+            return;
+          const ok = await deleteListingOnServer(item.id);
+          if (!ok) {
+            alert(tr("매물 삭제 중 오류가 발생했습니다.", "Có lỗi khi xóa tin."));
           }
-        </div>
-        <div class="list-sub">
-          ${item.location || ""} · ${item.price || ""}
-          ${tags}
-        </div>
-      </div>
-      <div>
-        <button class="btn-secondary complete-toggle" type="button"
-          data-id="${item.id}"
-          data-completed="${isCompleted ? "1" : "0"}">
-          ${
-            isCompleted
-              ? currentLang === "vi"
-                ? "Bỏ hoàn tất"
-                : "계약완료 해제"
-              : currentLang === "vi"
-              ? "Hoàn tất hợp đồng"
-              : "계약완료"
-          }
-        </button>
-        <button class="btn-danger" type="button"
-          data-id="${item.id}">
-          ${currentLang === "vi" ? "Xóa" : "삭제"}
-        </button>
-      </div>
-    `;
+        });
 
-    listContainer.appendChild(li);
-  });
+        listContainer.appendChild(li);
+      });
 
-  jsonBox.value = JSON.stringify(list, null, 2);
-}
-
+      jsonBox.value = JSON.stringify(list, null, 2);
+    }
 
     function handleSaveListing() {
       const title = titleEl.value.trim();
@@ -897,25 +940,25 @@
         document.querySelectorAll(".tag-group input[type=checkbox]:checked")
       ).map((el) => el.value);
 
-      const list = loadListings();
-      const newId = Date.now();
-
-      const item = {
-        id: newId,
+      const payload = {
         title,
         price,
         location,
+        mapUrl,
         desc,
         tags,
-        mapUrl,
         images: currentImages.slice()
       };
 
-      list.push(item);
-      saveListings(list);
-      alert(tr("매물이 등록되었습니다.", "Tin đã được đăng."));
-      renderList(list);
-      clearForm();
+      (async () => {
+        const result = await createListingOnServer(payload);
+        if (!result || !result.ok) {
+          alert(tr("매물 등록 중 오류가 발생했습니다.", "Có lỗi khi đăng tin."));
+          return;
+        }
+        alert(tr("매물이 등록되었습니다.", "Tin đã được đăng."));
+        clearForm();
+      })();
     }
 
     if (saveBtn) {
@@ -1092,26 +1135,8 @@
     }
 
     // ===== 초기 렌더 =====
-    const initialList = loadListings();
-    renderList(initialList);
+    fetchListingsFromServerForAdmin();
     applyLanguage("ko");
-
-/* 계약완료 상태 표시용 */
-.list-item.completed .list-title {
-  text-decoration: line-through;
-  color: #9ca3af;
-}
-
-.list-completed-badge {
-  display: inline-block;
-  padding: 2px 6px;
-  font-size: 11px;
-  border-radius: 999px;
-  background: #ef4444;
-  color: #ffffff;
-  margin-left: 6px;
-}
-
   </script>
 </body>
 </html>

@@ -882,6 +882,32 @@
 
     let listings = loadListings() || defaultListings;
 
+    async function fetchListingsFromServer() {
+      try {
+        const res = await fetch("/api/listings");
+        if (!res.ok) {
+          throw new Error("failed to fetch listings");
+        }
+        const data = await res.json();
+        if (data && Array.isArray(data.listings) && data.listings.length) {
+          listings = data.listings;
+          // 서버에서 받은 매물을 로컬스토리지에도 저장 (detail 페이지 호환용)
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(listings));
+          } catch (e) {
+            console.error("로컬 저장 실패:", e);
+          }
+          renderList(listings);
+          return;
+        }
+      } catch (e) {
+        console.error("서버 매물 불러오기 실패:", e);
+      }
+      // 서버에서 못 불러온 경우 기존(기본) 데이터로 렌더
+      renderList(listings);
+    }
+
+
     const langToggleBtn = document.getElementById("langToggleBtn");
     const cardList = document.getElementById("cardList");
     const emptyMsg = document.getElementById("emptyMsg");
@@ -1261,7 +1287,7 @@
 
     // 초기 렌더링
     updateAuthUI();
-    renderList(listings);
+    fetchListingsFromServer();
 
     if (langToggleBtn) {
       langToggleBtn.addEventListener("click", () => {
