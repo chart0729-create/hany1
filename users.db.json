@@ -1,0 +1,9 @@
+[
+  {
+    "id": "admin",
+    "nickname": "admin",
+    "phone": "",
+    "pw": "admin123",
+    "role": "admin"
+  }
+]

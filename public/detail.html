@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>매물 상세 - Hany 부동산</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #e1f2ff 0, #f7fbff 45%, #ffffff 100%);
+      padding: 16px 12px 24px;
+      display: flex;
+      justify-content: center;
+      color: #1f2933;
+    }
+    .app {
+      width: 100%;
+      max-width: 480px;
+    }
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .lang-btn {
+      margin-left: auto;
+      border-radius: 999px;
+      border: none;
+      padding: 5px 10px;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 4px 10px rgba(148,163,184,0.4);
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .back-btn {
+      border-radius: 999px;
+      border: none;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 4px 10px rgba(148,163,184,0.4);
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .top-bar-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .hero-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 12px 26px rgba(148,163,184,0.4);
+      border: 1px solid rgba(226,232,240,0.9);
+      margin-bottom: 12px;
+    }
+    .hero-image-wrap {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      background: #dbeafe;
+      overflow: hidden;
+    }
+    .hero-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .hero-count {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(15,23,42,0.45);
+      color: #fff;
+      backdrop-filter: blur(6px);
+    }
+    .hero-body {
+      padding: 8px 12px 10px;
+    }
+    .thumb-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .thumb {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      flex-shrink: 0;
+      background: #e5e7eb;
+      cursor: pointer;
+    }
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb.active {
+      border-color: #38bdf8;
+    }
+    .info-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 18px;
+      box-shadow: 0 10px 24px rgba(148,163,184,0.35);
+      border: 1px solid rgba(226,232,240,0.9);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      align-items: center;
+    }
+    .title-row h2 {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .price {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0ea5e9;
+      white-space: nowrap;
+    }
+    .location-line {
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+    }
+    .map-inline-link {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.6);
+      color: #0ea5e9;
+      background: #ecfeff;
+      text-decoration: none;
+    }
+    .tags-row {
+      margin: 4px 0 6px;
+    }
+    .tag-pill {
+      display: inline-block;
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      margin-right: 4px;
+      margin-bottom: 3px;
+    }
+    .desc {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    .map-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 18px;
+      box-shadow: 0 10px 24px rgba(148,163,184,0.35);
+      border: 1px solid rgba(226,232,240,0.9);
+      padding: 10px 10px 12px;
+      margin-bottom: 12px;
+    }
+    .map-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .map-title-row span {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .map-open-link {
+      font-size: 11px;
+      color: #0ea5e9;
+      text-decoration: none;
+    }
+    .map-frame-wrap {
+      width: 100%;
+      height: 220px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #e5e7eb;
+    }
+    .map-frame-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .cta-card {
+      background: transparent;
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .cta-btn {
+      flex: 1;
+      text-align: center;
+      font-size: 13px;
+      padding: 9px 0;
+      border-radius: 999px;
+      text-decoration: none;
+      border: 1px solid #38bdf8;
+      color: #0ea5e9;
+      background: #ffffff;
+      box-shadow: 0 6px 16px rgba(148,163,184,0.4);
+    }
+    .cta-btn.primary {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #ffffff;
+      border-color: transparent;
+    }
+    .empty-state {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 13px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top-bar">
+      <button class="back-btn" type="button" onclick="history.back()">←</button>
+      <div class="top-bar-title">매물 상세</div>
+      <button id="langToggleBtn" class="lang-btn" type="button">Tiếng Việt</button>
+    </header>
+    <main id="content"></main>
+  </div>
+
+  <script>
+    // ===== 언어 토글용 i18n =====
+    let currentLang = "ko";
+
+    const koToViText = {
+      "Hany 부동산": "Bất động sản Hany",
+      "매물 상세": "Chi tiết tin",
+      "잘못된 접근입니다. 다시 목록에서 선택해주세요.": "Truy cập không hợp lệ. Vui lòng quay lại danh sách và chọn lại.",
+      "해당 매물을 찾을 수 없습니다.": "Không tìm thấy tin này.",
+      "목록에서 다시 선택해주세요.": "Hãy quay lại danh sách và chọn lại.",
+      "지도 크게 보기": "Xem bản đồ lớn",
+      "위치 지도": "Bản đồ vị trí",
+      "구글 지도에서 열기": "Mở trên Google Maps",
+      "전화 문의": "Gọi điện",
+      "카톡 문의": "Nhắn KakaoTalk",
+      "잘로": "Zalo",
+      "텔레": "Telegram",
+
+      "푸미흥": "Phú Mỹ Hưng",
+      "7군": "Quận 7",
+      "1군": "Quận 1",
+      "2군": "Quận 2",
+      "투득군": "TP. Thủ Đức",
+      "빈탄군": "Quận Bình Thạnh",
+      "냐베군": "Huyện Nhà Bè",
+
+      "원룸": "Phòng 1 (studio)",
+      "1룸": "1 phòng",
+      "1.5룸": "1.5 phòng",
+      "2룸": "2 phòng",
+      "3룸 이상": "Từ 3 phòng trở lên",
+      "4룸": "4 phòng",
+      "오피스텔": "Officetel",
+      "아파트": "Căn hộ",
+      "빌라": "Biệt thự",
+      "주택": "Nhà riêng",
+      "타운하우스": "Nhà phố / townhouse",
+      "쉐어하우스": "Nhà share",
+      "상가": "Mặt bằng kinh doanh",
+      "사무실": "Văn phòng",
+      "복층": "Gác lửng / duplex",
+      "복복층": "Duplex nhiều tầng",
+      "화장실 2개": "2 nhà vệ sinh",
+      "화장실 3개": "3 nhà vệ sinh",
+      "화장실 4개": "4 nhà vệ sinh",
+
+      "전세": "Jeonse (cọc lớn, không thuê tháng)",
+      "반전세": "Bán jeonse (cọc + thuê)",
+      "월세": "Thuê tháng",
+      "단기임대": "Thuê ngắn hạn",
+
+      "풀옵션": "Full nội thất",
+      "반옵션": "Nội thất cơ bản",
+      "에어컨": "Máy lạnh",
+      "가전포함": "Bao gồm điện máy",
+      "가구포함": "Bao gồm nội thất",
+      "관리비포함": "Đã gồm phí quản lý",
+      "관리비별도": "Phí quản lý tính riêng",
+      "전기세별도": "Điện tính riêng",
+      "인터넷포함": "Bao gồm internet",
+      "청소서비스": "Có dịch vụ dọn dẹp",
+
+      "주차가능": "Có chỗ đậu xe",
+      "오토바이주차": "Đậu xe máy",
+      "반려견가능": "Cho nuôi chó",
+      "반려묘가능": "Cho nuôi mèo",
+
+      "신축": "Nhà mới xây",
+      "리모델링": "Đã sửa mới",
+      "보안24시간": "Bảo vệ 24 giờ",
+      "엘리베이터": "Thang máy",
+      "헬스장": "Phòng gym",
+      "수영장": "Hồ bơi",
+      "테라스": "Sân thượng / terrace",
+      "발코니": "Ban công",
+      "시티뷰": "View thành phố",
+      "리버뷰": "View sông",
+      "고층": "Tầng cao",
+      "저층": "Tầng thấp",
+      "즉시입주": "Vào ở ngay"
+    };
+
+    const koToViPlaceholder = {};
+
+    const viToKoText = {};
+    Object.keys(koToViText).forEach((k) => {
+      viToKoText[koToViText[k]] = k;
+    });
+    const viToKoPlaceholder = {};
+    Object.keys(koToViPlaceholder).forEach((k) => {
+      viToKoPlaceholder[koToViPlaceholder[k]] = k;
+    });
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      const textMap = lang === "vi" ? koToViText : viToKoText;
+      const placeholderMap = lang === "vi" ? koToViPlaceholder : viToKoPlaceholder;
+
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      let node;
+      while ((node = walker.nextNode())) {
+        const original = node.nodeValue;
+        const trimmed = original.trim();
+        if (!trimmed) continue;
+        if (textMap[trimmed]) {
+          node.nodeValue = original.replace(trimmed, textMap[trimmed]);
+        }
+      }
+
+      document.querySelectorAll("[placeholder]").forEach((el) => {
+        const ph = el.getAttribute("placeholder");
+        if (placeholderMap[ph]) {
+          el.setAttribute("placeholder", placeholderMap[ph]);
+        }
+      });
+
+      const btn = document.getElementById("langToggleBtn");
+      if (btn) {
+        btn.textContent = lang === "vi" ? "한국어" : "Tiếng Việt";
+      }
+    }
+
+    function tr(ko, vi) {
+      return currentLang === "vi" ? vi : ko;
+    }
+
+    var STORAGE_KEY = "hany_listings";
+
+    // 기본 매물 (localStorage가 비어 있을 때 사용)
+    var defaultListings = [
+      {
+        id: 1,
+        title: "푸미흥 2룸 오피스텔",
+        price: "보증금 1,000 / 월세 900",
+        location: "호치민 푸미흥",
+        desc: "보행가 까지 도보 5분, 관리비 포함. 반가구 옵션.",
+        tags: ["푸미흥", "2룸", "오피스텔", "월세"],
+        images: [
+          "https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg",
+          "https://images.pexels.com/photos/3637729/pexels-photo-3637729.jpeg"
+        ],
+        lat: 10.729,
+        lng: 106.719
+      },
+      {
+        id: 2,
+        title: "푸미흥 리버뷰 1룸",
+        price: "전세 2억 5,000",
+        location: "호치민 푸미흥 강변",
+        desc: "리버뷰, 주차 편리, 반려견 가능.",
+        tags: ["푸미흥", "1룸", "전세"],
+        images: [
+          "https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg",
+          "https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg"
+        ],
+        lat: 10.731,
+        lng: 106.72
+      },
+      {
+        id: 3,
+        title: "7군 신축 2룸 풀옵션",
+        price: "보증금 500 / 월세 700",
+        location: "호치민 7군",
+        desc: "헬스장, 수영장, 공용 라운지 이용 가능.",
+        tags: ["7군", "2룸", "월세"],
+        images: [
+          "https://images.pexels.com/photos/3637729/pexels-photo-3637729.jpeg",
+          "https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg"
+        ],
+        lat: 10.732,
+        lng: 106.714
+      }
+    ];
+
+    function loadListings() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        var parsed = JSON.parse(raw);
+        if (Object.prototype.toString.call(parsed) === "[object Array]") {
+          return parsed;
+        }
+        return null;
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    }
+
+    function getListingById(id) {
+      var all = loadListings() || defaultListings;
+      for (var i = 0; i < all.length; i++) {
+        if (String(all[i].id) === String(id)) {
+          return all[i];
+        }
+      }
+      return null;
+    }
+
+    // URL에서 특정 쿼리 파라미터 추출(q 등)
+    function getParamFromUrl(url, name) {
+      var qIndex = url.indexOf("?");
+      if (qIndex === -1) return null;
+      var qs = url.substring(qIndex + 1);
+      var parts = qs.split("&");
+      for (var i = 0; i < parts.length; i++) {
+        var kv = parts[i].split("=");
+        if (decodeURIComponent(kv[0] || "") === name) {
+          return kv.length > 1 ? decodeURIComponent(kv[1] || "") : "";
+        }
+      }
+      return null;
+    }
+
+    // google 지도 URL에서 위도/경도 추출
+    function extractCoordsFromMapUrl(url) {
+      if (!url) return null;
+
+      // 패턴 1: .../@10.729,106.719,17z/...
+      var atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)[,/]/);
+      if (atMatch && atMatch.length >= 3) {
+        return { lat: atMatch[1], lng: atMatch[2] };
+      }
+
+      // 패턴 2: ...!3d10.729!4d106.719...
+      var dMatch = url.match(/!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
+      if (dMatch && dMatch.length >= 3) {
+        return { lat: dMatch[1], lng: dMatch[2] };
+      }
+
+      return null;
+    }
+
+    // "지도 크게 보기" 외부 링크용 URL
+    function buildMapOpenUrl(item) {
+      if (item.mapUrl) return item.mapUrl; // 관리자에서 넣은 구글 URL 그대로
+      if (item.lat && item.lng) {
+        return "https://www.google.com/maps?q=" + item.lat + "," + item.lng;
+      }
+      if (item.location) {
+        return "https://www.google.com/maps?q=" + encodeURIComponent(item.location);
+      }
+      return null;
+    }
+
+    // iframe 안에 넣을 "임베드용" URL (정확한 위치에 맞춰서)
+    function buildMapFrameUrl(item) {
+      var url = item.mapUrl || "";
+
+      // 1순위: mapUrl에 좌표(@lat,lng or !3d!4d) 있으면 그걸 사용
+      var coords = extractCoordsFromMapUrl(url);
+      if (coords) {
+        return "https://www.google.com/maps?q=" +
+               coords.lat + "," + coords.lng + "&output=embed";
+      }
+
+      // 2순위: google.com/maps 에 q=주소 형태 있으면 그걸 사용
+      if (url && url.indexOf("google.com/maps") !== -1) {
+        var q = getParamFromUrl(url, "q");
+        if (q) {
+          return "https://www.google.com/maps?q=" +
+                 encodeURIComponent(q) + "&output=embed";
+        }
+      }
+
+      // 3순위: item.lat/lng 직접 사용 (기본 더미 매물용)
+      if (item.lat && item.lng) {
+        return "https://www.google.com/maps?q=" +
+               item.lat + "," + item.lng + "&output=embed";
+      }
+
+      // 4순위: 위치 텍스트로 검색
+      if (item.location) {
+        return "https://www.google.com/maps?q=" +
+               encodeURIComponent(item.location) + "&output=embed";
+      }
+
+      // 그 외 (maps.app.goo.gl 같은 짧은 URL만 있는 경우)는 iframe은 포기
+      return null;
+    }
+
+    // 쿼리스트링에서 id 값 꺼내기
+    function getQueryParam(name) {
+      var s = window.location.search;
+      if (!s || s.length < 2) return null;
+      s = s.substring(1);
+      var parts = s.split("&");
+      for (var i = 0; i < parts.length; i++) {
+        var kv = parts[i].split("=");
+        var key = decodeURIComponent(kv[0] || "");
+        if (key === name) {
+          return kv.length > 1 ? decodeURIComponent(kv[1] || "") : "";
+        }
+      }
+      return null;
+    }
+
+    var idParam = getQueryParam("id");
+    var contentEl = document.getElementById("content");
+
+    if (!idParam) {
+      contentEl.innerHTML =
+        '<div class="empty-state">잘못된 접근입니다. 다시 목록에서 선택해주세요.</div>';
+    } else {
+      var listing = getListingById(idParam);
+      if (!listing) {
+        contentEl.innerHTML =
+          '<div class="empty-state">해당 매물을 찾을 수 없습니다.<br />목록에서 다시 선택해주세요.</div>';
+      } else {
+        document.title = (listing.title || "매물 상세") + " - Hany 부동산";
+
+        var images = (listing.images && listing.images.length)
+          ? listing.images
+          : (listing.img ? [listing.img] : []);
+
+        var mainImage = images.length ? images[0] : "";
+        var tagsHtml = "";
+        if (listing.tags && listing.tags.length) {
+          for (var i = 0; i < listing.tags.length; i++) {
+            tagsHtml += '<span class="tag-pill">' +
+                        listing.tags[i] +
+                        "</span>";
+          }
+        }
+
+        var mapOpenUrl = buildMapOpenUrl(listing);
+        var mapFrameUrl = buildMapFrameUrl(listing);
+
+        var html = "";
+
+        // 큰 이미지 + 썸네일
+        html += '<section class="hero-card">';
+        html += '  <div class="hero-image-wrap">';
+        html += '    <img id="mainImage" src="' + (mainImage || "") + '" alt="' + (listing.title || "") + '" />';
+        if (images.length) {
+          html += '    <div class="hero-count">' + images.length + '장</div>';
+        }
+        html += '  </div>';
+        if (images.length > 1) {
+          html += '  <div class="hero-body"><div class="thumb-row" id="thumbRow"></div></div>';
+        }
+        html += '</section>';
+
+        // 기본 정보 카드
+        html += '<section class="info-card">';
+        html += '  <div class="title-row">';
+        html += '    <h2>' + (listing.title || "") + '</h2>';
+        html += '    <div class="price">' + (listing.price || "") + '</div>';
+        html += '  </div>';
+        html += '  <div class="location-line">';
+        html += '    <span>' + (listing.location || "") + '</span>';
+        if (mapOpenUrl) {
+          html += '    <a class="map-inline-link" href="' + mapOpenUrl +
+                  '" target="_blank">지도 크게 보기</a>';
+        }
+        html += '  </div>';
+        html += '  <div class="tags-row">' + tagsHtml + '</div>';
+        var desc = listing.desc || "";
+        desc = desc.replace(/\n/g, "<br />");
+        html += '  <div class="desc">' + desc + '</div>';
+        html += '</section>';
+
+        // 지도 카드
+        if (mapFrameUrl) {
+          html += '<section class="map-card" id="mapSection">';
+          html += '  <div class="map-title-row">';
+          html += '    <span>위치 지도</span>';
+          if (mapOpenUrl) {
+            html += '    <a class="map-open-link" href="' + mapOpenUrl +
+                    '" target="_blank">구글 지도에서 열기</a>';
+          }
+          html += '  </div>';
+          html += '  <div class="map-frame-wrap">';
+          html += '    <iframe id="mapFrame" src="' + mapFrameUrl +
+                  '" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>';
+          html += '  </div>';
+          html += '</section>';
+        }
+
+        // 문의 버튼
+        html += '<section class="cta-card">';
+        html += '  <a href="tel:01000000000" class="cta-btn primary">전화 문의</a>';
+        html += '  <a href="https://pf.kakao.com" target="_blank" class="cta-btn">카톡 문의</a>';
+        html += '  <a href="https://zalo.me/123456789" target="_blank" class="cta-btn">잘로</a>';
+        html += '  <a href="https://t.me/your_telegram_id" target="_blank" class="cta-btn">텔레</a>';
+        html += '</section>';
+
+        contentEl.innerHTML = html;
+
+        // 썸네일 클릭 시 대표 이미지 교체
+        if (images.length > 1) {
+          var thumbRow = document.getElementById("thumbRow");
+          var mainImageEl = document.getElementById("mainImage");
+
+          for (var i = 0; i < images.length; i++) {
+            (function (src, idx) {
+              var t = document.createElement("div");
+              t.className = "thumb" + (idx === 0 ? " active" : "");
+              t.innerHTML = '<img src="' + src + '" alt="thumb" />';
+              t.addEventListener("click", function () {
+                mainImageEl.src = src;
+                var allThumbs = thumbRow.querySelectorAll(".thumb");
+                for (var j = 0; j < allThumbs.length; j++) {
+                  allThumbs[j].classList.remove("active");
+                }
+                t.classList.add("active");
+              });
+              thumbRow.appendChild(t);
+            })(images[i], i);
+          }
+        }
+      }
+    }
+
+    const langToggleBtn = document.getElementById("langToggleBtn");
+    if (langToggleBtn) {
+      langToggleBtn.addEventListener("click", () => {
+        const next = currentLang === "ko" ? "vi" : "ko";
+        applyLanguage(next);
+      });
+    }
+    applyLanguage("ko");
+  </script>
+</body>
+</html>

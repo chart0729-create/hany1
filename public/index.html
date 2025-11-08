@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hany 부동산</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #e1f2ff 0, #f7fbff 45%, #ffffff 100%);
+      padding: 16px 12px 80px;
+      display: flex;
+      justify-content: center;
+      color: #1f2933;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    /* ===== 상단 로그인 / 회원 ===== */
+    .top-auth {
+      position: fixed;
+      top: 10px;
+      right: 12px;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+    }
+    .top-auth .auth-name {
+      color: #0f172a;
+      font-weight: 600;
+    }
+    .auth-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(255,255,255,0.9);
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .auth-btn.primary {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #ffffff;
+      border-color: transparent;
+    }
+    .hidden {
+      display: none !important;
+    }
+
+    /* ===== 회원가입/로그인 모달 ===== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .auth-modal {
+      width: 90%;
+      max-width: 360px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.4);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      padding: 14px 16px 16px;
+    }
+    .auth-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .auth-modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .auth-modal-close {
+      border: none;
+      background: transparent;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 2px 4px;
+      line-height: 1;
+      color: #6b7280;
+    }
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .auth-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .auth-field label {
+      font-size: 12px;
+      color: #4b5563;
+    }
+    .auth-field input {
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      padding: 7px 9px;
+      font-size: 13px;
+      outline: none;
+    }
+    .auth-submit-btn {
+      margin-top: 6px;
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 8px 0;
+      font-size: 13px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #ffffff;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(56, 189, 248, 0.4);
+    }
+
+    /* ===== 상단 배너 + 로고 ===== */
+    .banner {
+      position: relative;
+      width: 100%;
+      border-radius: 22px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #7fd4ff, #3ba6ff);
+      box-shadow: 0 18px 35px rgba(15, 111, 191, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    .banner img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      display: block;
+      filter: brightness(0.9) saturate(1.05);
+      opacity: 0.7;
+    }
+
+    .banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 136, 255, 0.45), rgba(255, 255, 255, 0.05));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      color: #fff;
+    }
+
+    .banner-left {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .banner-top-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .banner-logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 20% 0, #ffffff 0, #dbeafe 30%, #7dd3fc 65%, #0ea5e9 100%);
+      box-shadow: 0 6px 16px rgba(15, 111, 191, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .banner-logo::before {
+      content: "H";
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 1px;
+    }
+
+    .banner-texts h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
+    .banner-texts p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .banner-badge {
+      width: fit-content;
+      margin-top: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(8px);
+    }
+
+    .banner-right {
+      text-align: right;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-end;
+    }
+
+    .banner-pill {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.25);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      font-size: 11px;
+    }
+
+    .banner-stat {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    header {
+      margin: 4px 0 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    header p {
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .locate-btn {
+      font-size: 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.6);
+      padding: 5px 10px;
+      background: rgba(239, 246, 255, 0.9);
+      color: #2563eb;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* ===== 검색창 ===== */
+    .search-box {
+      margin: 12px 0;
+      display: flex;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 10px 25px rgba(148, 163, 184, 0.25);
+      backdrop-filter: blur(10px);
+      align-items: center;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 14px;
+      background: transparent;
+      color: #111827;
+      outline: none;
+    }
+
+    .search-box input::placeholder {
+      color: #9ca3af;
+      font-size: 13px;
+    }
+
+    .search-box button {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(56, 189, 248, 0.4);
+      white-space: nowrap;
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
+    }
+
+    .search-box button:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 8px rgba(56, 189, 248, 0.35);
+    }
+
+    /* ===== 태그 ===== */
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: #2563eb;
+      cursor: pointer;
+      transition: background 0.12s ease-out, color 0.12s ease-out, border-color 0.12s ease-out, transform 0.08s ease-out;
+    }
+
+    .tag:hover {
+      transform: translateY(-1px);
+      border-color: rgba(59, 130, 246, 0.8);
+    }
+
+    .tag.active {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 6px 14px rgba(56, 189, 248, 0.35);
+    }
+
+    /* ===== 매물 카드 ===== */
+    .card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 80px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 14px 28px rgba(148, 163, 184, 0.3);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, border-color 0.12s ease-out;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(148, 163, 184, 0.35);
+      border-color: rgba(129, 140, 248, 0.7);
+    }
+
+    .card-image-wrap {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      overflow: hidden;
+      background: #dbeafe;
+    }
+
+    .card-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(1.05);
+      display: block;
+    }
+
+    .image-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(15, 23, 42, 0.35);
+      color: #ffffff;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+    }
+
+    .image-nav.left {
+      left: 8px;
+    }
+
+    .image-nav.right {
+      right: 8px;
+    }
+
+    .image-indicator {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: rgba(15, 23, 42, 0.35);
+      color: #ffffff;
+      backdrop-filter: blur(6px);
+    }
+
+    .card-body {
+      padding: 10px 12px 12px;
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .card-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0ea5e9;
+      white-space: nowrap;
+    }
+
+    .card-meta {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 3px;
+    }
+
+    .distance-text {
+      font-size: 11px;
+      color: #2563eb;
+    }
+
+    .map-link {
+      font-size: 11px;
+      color: #0ea5e9;
+      text-decoration: underline;
+      margin-left: 4px;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: #4b5563;
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    .empty {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 13px;
+      margin-top: 40px;
+    }
+
+    /* ===== 하단 문의 바 ===== */
+    .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      border-top: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 8px 12px 10px;
+      box-shadow: 0 -10px 25px rgba(148, 163, 184, 0.3);
+      backdrop-filter: blur(14px);
+    }
+
+    .bottom-inner {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .bottom-info {
+      flex: 1;
+      font-size: 11px;
+      color: #4b5563;
+      line-height: 1.4;
+    }
+
+    .bottom-info strong {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 2px;
+      color: #1f2937;
+    }
+
+    .bottom-buttons {
+      display: flex;
+      gap: 6px;
+    }
+
+    .bottom-buttons a {
+      text-decoration: none;
+      font-size: 11px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      border: 1px solid #38bdf8;
+      color: #0ea5e9;
+      white-space: nowrap;
+      background: #ffffff;
+      box-shadow: 0 5px 12px rgba(148, 163, 184, 0.4);
+      transition: background 0.12s ease-out, color 0.12s ease-out, box-shadow 0.12s ease-out, transform 0.08s ease-out;
+    }
+
+    .bottom-buttons a.primary {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #ffffff;
+      border-color: transparent;
+      font-weight: 600;
+    }
+
+    .bottom-buttons a:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 8px rgba(148, 163, 184, 0.4);
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding-top: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 상단 로그인 / 회원 UI -->
+  <div class="top-auth">
+    <div id="authLoggedOut">
+      <button type="button" id="signupBtn" class="auth-btn">회원가입</button>
+      <button type="button" id="loginBtn" class="auth-btn primary">로그인</button>
+    </div>
+    <div id="authLoggedIn" class="hidden">
+      <span id="welcomeText" class="auth-name"></span>
+      <button type="button" id="adminPageBtn" class="auth-btn hidden">관리자 페이지</button>
+      <button type="button" id="logoutBtn" class="auth-btn">로그아웃</button>
+    </div>
+    <button type="button" id="langToggleBtn" class="auth-btn">Tiếng Việt</button>
+  </div>
+
+  <!-- 회원가입/로그인 모달 -->
+  <div id="authModalBackdrop" class="modal-backdrop hidden">
+    <div class="auth-modal">
+      <div class="auth-modal-header">
+        <div id="authModalTitle" class="auth-modal-title">회원가입</div>
+        <button type="button" id="authModalClose" class="auth-modal-close">×</button>
+      </div>
+      <!-- 회원가입 폼 -->
+      <div id="signupForm" class="auth-form">
+        <div class="auth-field">
+          <label for="signupNickname">닉네임</label>
+          <input id="signupNickname" type="text" />
+        </div>
+        <div class="auth-field">
+          <label for="signupPhone">전화번호</label>
+          <input id="signupPhone" type="text" placeholder="예: 010-1234-5678" />
+        </div>
+        <div class="auth-field">
+          <label for="signupPassword">비밀번호</label>
+          <input id="signupPassword" type="password" />
+        </div>
+        <button type="button" id="signupSubmitBtn" class="auth-submit-btn">회원가입</button>
+      </div>
+      <!-- 로그인 폼 -->
+      <div id="loginForm" class="auth-form hidden">
+        <div class="auth-field">
+          <label for="loginNickname">닉네임</label>
+          <input id="loginNickname" type="text" />
+        </div>
+        <div class="auth-field">
+          <label for="loginPassword">비밀번호</label>
+          <input id="loginPassword" type="password" />
+        </div>
+        <button type="button" id="loginSubmitBtn" class="auth-submit-btn">로그인</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app">
+    <!-- 상단 배너 -->
+    <div class="banner">
+      <img src="https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg" alt="배너 이미지" />
+      <div class="banner-overlay">
+        <div class="banner-left">
+          <div class="banner-top-row">
+            <div class="banner-logo"></div>
+            <div class="banner-texts">
+              <h1>Hany 부동산</h1>
+              <p>당신의 새로운 공간, 여기서 시작하세요.</p>
+            </div>
+          </div>
+          <div class="banner-badge">신뢰받는 한국인 전담 부동산</div>
+        </div>
+        <div class="banner-right">
+          <div class="banner-pill">오늘 신규 등록 매물 <span id="bannerCount">0</span>건</div>
+          <div class="banner-stat">푸미흥 · 7군 · 리버뷰 특화</div>
+        </div>
+      </div>
+    </div>
+
+    <header>
+      <p>원하는 지역 / 가격을 검색해보세요.</p>
+      <button id="locateBtn" class="locate-btn">📍 내 위치</button>
+    </header>
+
+    <div class="search-box">
+      <input id="searchInput" type="text" placeholder="예: 푸미흥, 2룸, 1000달러" />
+      <button id="searchBtn">검색</button>
+    </div>
+
+    <div class="tag-row">
+      <div class="tag" data-tag="푸미흥">푸미흥</div>
+      <div class="tag" data-tag="7군">7군</div>
+      <div class="tag" data-tag="1룸">1룸</div>
+      <div class="tag" data-tag="2룸">2룸</div>
+      <div class="tag" data-tag="오피스텔">오피스텔</div>
+      <div class="tag" data-tag="전세">전세</div>
+      <div class="tag" data-tag="월세">월세</div>
+    </div>
+
+    <div id="cardList" class="card-list"></div>
+
+    <div id="emptyMsg" class="empty" style="display:none;">
+      조건에 맞는 매물이 없습니다.<br />
+      키워드를 바꿔서 다시 검색해보세요.
+    </div>
+  </div>
+
+  <!-- 하단 문의 바 -->
+  <div class="bottom-bar">
+    <div class="bottom-inner">
+      <div class="bottom-info" id="bottomInfo">
+        <strong>매물을 선택하면 상세 정보가 여기 표시됩니다.</strong>
+        문의 전에 캡처해두면 편해요 :)
+      </div>
+      <div class="bottom-buttons">
+        <a id="callLink" href="tel:01000000000" class="primary">전화</a>
+        <a id="kakaoLink" href="https://pf.kakao.com" target="_blank" rel="noopener noreferrer">카톡</a>
+        <a id="zaloLink" href="https://zalo.me/123456789" target="_blank" rel="noopener noreferrer">잘로</a>
+        <a id="telegramLink" href="https://t.me/your_telegram_id" target="_blank" rel="noopener noreferrer">텔레</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 언어 토글용 i18n =====
+    let currentLang = "ko";
+
+    const koToViText = {
+      "Hany 부동산": "Bất động sản Hany",
+      "매물 등록 / 관리 및 회원 정보를 확인할 수 있습니다.": "Bạn có thể đăng / quản lý tin và xem thông tin thành viên.",
+      "메인 페이지로": "Về trang chính",
+      "회원가입": "Đăng ký",
+      "로그인": "Đăng nhập",
+      "로그아웃": "Đăng xuất",
+      "관리자 페이지": "Trang quản trị",
+      "당신의 새로운 공간, 여기서 시작하세요.": "Không gian mới của bạn bắt đầu từ đây.",
+      "신뢰받는 한국인 전담 부동산": "Văn phòng bất động sản chuyên hỗ trợ người Hàn",
+      "오늘 신규 등록 매물": "Tin đăng mới hôm nay",
+      "건": "tin",
+      "푸미흥 · 7군 · 리버뷰 특화": "Phú Mỹ Hưng · Quận 7 · Chuyên view sông",
+      "원하는 지역 / 가격을 검색해보세요.": "Hãy tìm theo khu vực / giá bạn muốn.",
+      "📍 내 위치": "📍 Vị trí của tôi",
+      "검색": "Tìm kiếm",
+      "조건에 맞는 매물이 없습니다.": "Không có tin nào phù hợp với điều kiện.",
+      "키워드를 바꿔서 다시 검색해보세요.": "Hãy đổi từ khóa và tìm lại.",
+      "매물을 선택하면 상세 정보가 여기 표시됩니다.": "Khi chọn tin, thông tin chi tiết sẽ hiển thị tại đây.",
+      "문의 전에 캡처해두면 편해요 :)": "Chụp màn hình trước khi liên hệ sẽ tiện hơn :)",
+      "전화": "Gọi điện",
+      "카톡": "KakaoTalk",
+      "잘로": "Zalo",
+      "텔레": "Telegram",
+
+      "회원가입": "Đăng ký",
+      "닉네임": "Nickname",
+      "전화번호": "Số điện thoại",
+      "비밀번호": "Mật khẩu",
+
+      "푸미흥": "Phú Mỹ Hưng",
+      "7군": "Quận 7",
+      "1군": "Quận 1",
+      "2군": "Quận 2",
+      "투득군": "TP. Thủ Đức",
+      "빈탄군": "Quận Bình Thạnh",
+      "냐베군": "Huyện Nhà Bè",
+
+      "원룸": "Phòng 1 (studio)",
+      "1룸": "1 phòng",
+      "1.5룸": "1.5 phòng",
+      "2룸": "2 phòng",
+      "3룸 이상": "Từ 3 phòng trở lên",
+      "4룸": "4 phòng",
+      "오피스텔": "Officetel",
+      "아파트": "Căn hộ",
+      "빌라": "Biệt thự",
+      "주택": "Nhà riêng",
+      "타운하우스": "Nhà phố / townhouse",
+      "쉐어하우스": "Nhà share",
+      "상가": "Mặt bằng kinh doanh",
+      "사무실": "Văn phòng",
+      "복층": "Gác lửng / duplex",
+      "복복층": "Duplex nhiều tầng",
+      "화장실 2개": "2 nhà vệ sinh",
+      "화장실 3개": "3 nhà vệ sinh",
+      "화장실 4개": "4 nhà vệ sinh",
+
+      "전세": "Jeonse (cọc lớn, không thuê tháng)",
+      "반전세": "Bán jeonse (cọc + thuê)",
+      "월세": "Thuê tháng",
+      "단기임대": "Thuê ngắn hạn",
+
+      "풀옵션": "Full nội thất",
+      "반옵션": "Nội thất cơ bản",
+      "에어컨": "Máy lạnh",
+      "가전포함": "Bao gồm điện máy",
+      "가구포함": "Bao gồm nội thất",
+      "관리비포함": "Đã gồm phí quản lý",
+      "관리비별도": "Phí quản lý tính riêng",
+      "전기세별도": "Điện tính riêng",
+      "인터넷포함": "Bao gồm internet",
+      "청소서비스": "Có dịch vụ dọn dẹp",
+
+      "주차가능": "Có chỗ đậu xe",
+      "오토바이주차": "Đậu xe máy",
+      "반려견가능": "Cho nuôi chó",
+      "반려묘가능": "Cho nuôi mèo",
+
+      "신축": "Nhà mới xây",
+      "리모델링": "Đã sửa mới",
+      "보안24시간": "Bảo vệ 24 giờ",
+      "엘리베이터": "Thang máy",
+      "헬스장": "Phòng gym",
+      "수영장": "Hồ bơi",
+      "테라스": "Sân thượng / terrace",
+      "발코니": "Ban công",
+      "시티뷰": "View thành phố",
+      "리버뷰": "View sông",
+      "고층": "Tầng cao",
+      "저층": "Tầng thấp",
+      "즉시입주": "Vào ở ngay"
+    };
+
+    const koToViPlaceholder = {
+      "예: 푸미흥, 2룸, 1000달러": "VD: Phú Mỹ Hưng, 2 phòng, 1000 USD",
+      "예: 010-1234-5678": "VD: 010-1234-5678"
+    };
+
+    const viToKoText = {};
+    Object.keys(koToViText).forEach((k) => {
+      viToKoText[koToViText[k]] = k;
+    });
+    const viToKoPlaceholder = {};
+    Object.keys(koToViPlaceholder).forEach((k) => {
+      viToKoPlaceholder[koToViPlaceholder[k]] = k;
+    });
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      const textMap = lang === "vi" ? koToViText : viToKoText;
+      const placeholderMap = lang === "vi" ? koToViPlaceholder : viToKoPlaceholder;
+
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      let node;
+      while ((node = walker.nextNode())) {
+        const original = node.nodeValue;
+        const trimmed = original.trim();
+        if (!trimmed) continue;
+        if (textMap[trimmed]) {
+          node.nodeValue = original.replace(trimmed, textMap[trimmed]);
+        }
+      }
+
+      document.querySelectorAll("[placeholder]").forEach((el) => {
+        const ph = el.getAttribute("placeholder");
+        if (placeholderMap[ph]) {
+          el.setAttribute("placeholder", placeholderMap[ph]);
+        }
+      });
+
+      const btn = document.getElementById("langToggleBtn");
+      if (btn) {
+        btn.textContent = lang === "vi" ? "한국어" : "Tiếng Việt";
+      }
+    }
+
+    function tr(ko, vi) {
+      return currentLang === "vi" ? vi : ko;
+    }
+
+    const STORAGE_KEY = "hany_listings";
+
+    const defaultListings = [
+      {
+        id: 1,
+        title: "푸미흥 2룸 오피스텔",
+        price: "보증금 1,000 / 월세 900",
+        location: "호치민 푸미흥",
+        desc: "보행가 까지 도보 5분, 관리비 포함. 반가구 옵션.",
+        tags: ["푸미흥", "2룸", "오피스텔", "월세"],
+        images: [
+          "https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg",
+          "https://images.pexels.com/photos/3637729/pexels-photo-3637729.jpeg"
+        ],
+        lat: 10.729,
+        lng: 106.719
+      },
+      {
+        id: 2,
+        title: "푸미흥 리버뷰 1룸",
+        price: "전세 2억 5,000",
+        location: "호치민 푸미흥 강변",
+        desc: "리버뷰, 주차 편리, 반려견 가능.",
+        tags: ["푸미흥", "1룸", "전세"],
+        images: [
+          "https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg",
+          "https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg"
+        ],
+        lat: 10.731,
+        lng: 106.72
+      },
+      {
+        id: 3,
+        title: "7군 신축 2룸 풀옵션",
+        price: "보증금 500 / 월세 700",
+        location: "호치민 7군",
+        desc: "헬스장, 수영장, 공용 라운지 이용 가능.",
+        tags: ["7군", "2룸", "월세"],
+        images: [
+          "https://images.pexels.com/photos/3637729/pexels-photo-3637729.jpeg",
+          "https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg"
+        ],
+        lat: 10.732,
+        lng: 106.714
+      }
+    ];
+
+    function loadListings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return null;
+        return parsed;
+      } catch (e) {
+        console.error("load error", e);
+        return null;
+      }
+    }
+
+    let listings = loadListings() || defaultListings;
+
+    const langToggleBtn = document.getElementById("langToggleBtn");
+    const cardList = document.getElementById("cardList");
+    const emptyMsg = document.getElementById("emptyMsg");
+    const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const tagElems = document.querySelectorAll(".tag");
+    const bottomInfo = document.getElementById("bottomInfo");
+    const locateBtn = document.getElementById("locateBtn");
+    const bannerCount = document.getElementById("bannerCount");
+
+    const authLoggedOut = document.getElementById("authLoggedOut");
+    const authLoggedIn = document.getElementById("authLoggedIn");
+    const welcomeText = document.getElementById("welcomeText");
+    const signupBtn = document.getElementById("signupBtn");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const adminPageBtn = document.getElementById("adminPageBtn");
+
+    const authModalBackdrop = document.getElementById("authModalBackdrop");
+    const authModalTitle = document.getElementById("authModalTitle");
+    const authModalClose = document.getElementById("authModalClose");
+    const signupFormEl = document.getElementById("signupForm");
+    const loginFormEl = document.getElementById("loginForm");
+    const signupNicknameEl = document.getElementById("signupNickname");
+    const signupPhoneEl = document.getElementById("signupPhone");
+    const signupPasswordEl = document.getElementById("signupPassword");
+    const signupSubmitBtn = document.getElementById("signupSubmitBtn");
+    const loginNicknameEl = document.getElementById("loginNickname");
+    const loginPasswordEl = document.getElementById("loginPassword");
+    const loginSubmitBtn = document.getElementById("loginSubmitBtn");
+
+    // 사진 인덱스 / 거리 저장용
+    const imageIndexById = {};
+    const distanceById = {};
+
+    // ===== 회원 / 로그인 상태 관리 (서버 연동) =====
+    const CURRENT_USER_INFO_KEY = "hany_current_user_info";
+
+    function getCurrentUser() {
+      try {
+        const raw = localStorage.getItem(CURRENT_USER_INFO_KEY);
+        if (!raw) return null;
+        const user = JSON.parse(raw);
+        if (!user || !user.id) return null;
+        return user;
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    }
+
+    function setCurrentUser(user) {
+      if (!user) {
+        try {
+          localStorage.removeItem(CURRENT_USER_INFO_KEY);
+        } catch (e) {}
+        updateAuthUI();
+        return;
+      }
+      const info = {
+        id: user.id,
+        nickname: user.nickname || user.id,
+        phone: user.phone || "",
+        role: user.role || "user"
+      };
+      try {
+        localStorage.setItem(CURRENT_USER_INFO_KEY, JSON.stringify(info));
+      } catch (e) {
+        console.error(e);
+      }
+      updateAuthUI();
+    }
+
+    function updateAuthUI() {
+      const user = getCurrentUser();
+      if (!user) {
+        authLoggedOut.classList.remove("hidden");
+        authLoggedIn.classList.add("hidden");
+      } else {
+        authLoggedOut.classList.add("hidden");
+        authLoggedIn.classList.remove("hidden");
+        welcomeText.textContent = user.nickname + "님";
+        if (user.role === "admin") {
+          adminPageBtn.classList.remove("hidden");
+        } else {
+          adminPageBtn.classList.add("hidden");
+        }
+      }
+    }
+
+    function openAuthModal(mode) {
+      // mode: "signup" | "login"
+      if (mode === "signup") {
+        authModalTitle.textContent = "회원가입";
+        signupFormEl.classList.remove("hidden");
+        loginFormEl.classList.add("hidden");
+        signupNicknameEl.value = "";
+        signupPhoneEl.value = "";
+        signupPasswordEl.value = "";
+      } else {
+        authModalTitle.textContent = "로그인";
+        signupFormEl.classList.add("hidden");
+        loginFormEl.classList.remove("hidden");
+        loginNicknameEl.value = "";
+        loginPasswordEl.value = "";
+      }
+      authModalBackdrop.classList.remove("hidden");
+    }
+
+    function closeAuthModal() {
+      authModalBackdrop.classList.add("hidden");
+    }
+
+    // ===== 거리 계산 =====
+    function haversine(lat1, lon1, lat2, lon2) {
+      function toRad(v) { return v * Math.PI / 180; }
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function renderList(data) {
+      cardList.innerHTML = "";
+      if (!data.length) {
+        emptyMsg.style.display = "block";
+        bannerCount.textContent = "0";
+        return;
+      }
+      emptyMsg.style.display = "none";
+      bannerCount.textContent = String(data.length);
+
+      data.forEach(item => {
+        if (imageIndexById[item.id] == null) imageIndexById[item.id] = 0;
+        const images = (item.images && item.images.length) ? item.images : (item.img ? [item.img] : []);
+        const currentIndex = Math.min(imageIndexById[item.id], images.length - 1);
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.id = item.id;
+
+        card.innerHTML = `
+          <div class="card-image-wrap">
+            <button class="image-nav left" type="button">‹</button>
+            <img src="${images[currentIndex] || ""}" alt="${item.title || ""}" />
+            <button class="image-nav right" type="button">›</button>
+            <div class="image-indicator">${currentIndex + 1} / ${images.length}</div>
+          </div>
+          <div class="card-body">
+            <div class="card-title-row">
+              <div class="card-title">${item.title || ""}</div>
+              <div class="card-price">${item.price || ""}</div>
+            </div>
+            <div class="card-meta">
+              ${item.location || ""}
+              ${
+                distanceById[item.id] != null
+                  ? `<span class="distance-text"> · 나와 약 ${distanceById[item.id]}km</span>`
+                  : ""
+              }
+              ${
+                item.lat && item.lng
+                  ? `<a class="map-link" href="https://maps.google.com/?q=${item.lat},${item.lng}" target="_blank" onclick="event.stopPropagation()">지도보기</a>`
+                  : ""
+              }
+            </div>
+            <div class="card-desc">${item.desc || ""}</div>
+          </div>
+        `;
+
+        // 사진 넘기기 버튼
+        const leftBtn = card.querySelector(".image-nav.left");
+        const rightBtn = card.querySelector(".image-nav.right");
+        const imgEl = card.querySelector("img");
+        const indicator = card.querySelector(".image-indicator");
+
+        function updateImage(delta) {
+          let idx = imageIndexById[item.id] || 0;
+          const len = images.length || 1;
+          idx = (idx + delta + len) % len;
+          imageIndexById[item.id] = idx;
+          if (images[idx]) {
+            imgEl.src = images[idx];
+          }
+          indicator.textContent = `${idx + 1} / ${len}`;
+        }
+
+        leftBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          updateImage(-1);
+        });
+
+        rightBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          updateImage(1);
+        });
+
+        // 카드 클릭 시 상세페이지 이동 (여기가 핵심 수정 부분)
+        card.addEventListener("click", () => {
+          window.location.href = `detail.html?id=${encodeURIComponent(item.id)}`;
+        });
+
+        cardList.appendChild(card);
+      });
+    }
+
+    function filterList(keyword) {
+      const kw = keyword.trim();
+      if (!kw) {
+        renderList(listings);
+        return;
+      }
+      const lower = kw.toLowerCase();
+      const filtered = listings.filter(item => {
+        const fields = [
+          item.title || "",
+          item.location || "",
+          item.price || "",
+          item.desc || "",
+          (item.tags || []).join(" ")
+        ];
+        return fields.some(f => f.toLowerCase().includes(lower));
+      });
+      renderList(filtered);
+    }
+
+    // ===== 이벤트 바인딩 =====
+    searchBtn.addEventListener("click", () => {
+      filterList(searchInput.value);
+    });
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        filterList(searchInput.value);
+      }
+    });
+
+    tagElems.forEach(tagEl => {
+      tagEl.addEventListener("click", () => {
+        const t = tagEl.getAttribute("data-tag");
+        const already = tagEl.classList.contains("active");
+        tagElems.forEach(te => te.classList.remove("active"));
+        if (already) {
+          renderList(listings);
+        } else {
+          tagEl.classList.add("active");
+          filterList(t);
+        }
+      });
+    });
+
+    // 내 위치 버튼: 거리 계산
+    locateBtn.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        alert("이 브라우저에서는 위치 정보를 사용할 수 없습니다.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          listings.forEach(item => {
+            if (item.lat && item.lng) {
+              const d = haversine(lat, lng, item.lat, item.lng);
+              distanceById[item.id] = Math.round(d * 10) / 10;
+            }
+          });
+          renderList(listings);
+        },
+        () => {
+          alert("위치 정보를 가져오지 못했습니다.");
+        }
+      );
+    });
+
+    // 회원가입 / 로그인 모달 관련
+    if (signupBtn) {
+      signupBtn.addEventListener("click", () => {
+        openAuthModal("signup");
+      });
+    }
+    if (loginBtn) {
+      loginBtn.addEventListener("click", () => {
+        openAuthModal("login");
+      });
+    }
+    if (authModalClose) {
+      authModalClose.addEventListener("click", closeAuthModal);
+    }
+    // 모달 배경 클릭 시 닫기
+    authModalBackdrop.addEventListener("click", (e) => {
+      if (e.target === authModalBackdrop) {
+        closeAuthModal();
+      }
+    });
+
+    // 회원가입 제출
+    if (signupSubmitBtn) {
+      signupSubmitBtn.addEventListener("click", async () => {
+        const nickname = signupNicknameEl.value.trim();
+        const phone = signupPhoneEl.value.trim();
+        const pw = signupPasswordEl.value.trim();
+
+        if (!nickname || !pw) {
+          alert("닉네임과 비밀번호는 필수입니다.");
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nickname, phone, password: pw })
+          });
+          const data = await res.json();
+          if (!data.ok) {
+            alert(data.error || "회원가입에 실패했습니다.");
+            return;
+          }
+          alert("회원가입이 완료되었습니다. 자동으로 로그인됩니다.");
+          setCurrentUser(data.user);
+          closeAuthModal();
+        } catch (e) {
+          console.error(e);
+          alert("서버와 통신 중 오류가 발생했습니다.");
+        }
+      });
+    }
+
+    // 로그인 제출
+    if (loginSubmitBtn) {
+      loginSubmitBtn.addEventListener("click", async () => {
+        const nickname = loginNicknameEl.value.trim();
+        const pw = loginPasswordEl.value.trim();
+        if (!nickname || !pw) {
+          alert("닉네임과 비밀번호를 입력해주세요.");
+          return;
+        }
+        try {
+          const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nickname, password: pw })
+          });
+          const data = await res.json();
+          if (!data.ok) {
+            alert(data.error || "로그인에 실패했습니다.");
+            return;
+          }
+          alert("로그인되었습니다.");
+          setCurrentUser(data.user);
+          closeAuthModal();
+        } catch (e) {
+          console.error(e);
+          alert("서버와 통신 중 오류가 발생했습니다.");
+        }
+      });
+    }
+
+    // 로그아웃
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        setCurrentUser(null);
+      });
+    }
+
+    // 관리자 페이지 버튼
+    if (adminPageBtn) {
+      adminPageBtn.addEventListener("click", () => {
+        window.location.href = "admin.html";
+      });
+    }
+
+    // 초기 렌더링
+    updateAuthUI();
+    renderList(listings);
+
+    if (langToggleBtn) {
+      langToggleBtn.addEventListener("click", () => {
+        const next = currentLang === "ko" ? "vi" : "ko";
+        applyLanguage(next);
+      });
+    }
+    applyLanguage("ko");
+  </script>
+</body>
+</html>

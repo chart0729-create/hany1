@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hany 부동산 관리자</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      background: #f3f4f6;
+      padding: 16px 12px 40px;
+      display: flex;
+      justify-content: center;
+      color: #111827;
+    }
+    .app {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+
+    .lang-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 720px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 12px 12px 14px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      border: 1px solid #e5e7eb;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #2563eb;
+      font-size: 11px;
+    }
+    .help-text {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    /* 폼 */
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .form-row label {
+      font-size: 12px;
+      color: #374151;
+      font-weight: 600;
+    }
+    .form-row input,
+    .form-row textarea {
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      padding: 7px 9px;
+      font-size: 13px;
+      outline: none;
+    }
+    .form-row textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .tag-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #d4d4d8;
+      font-size: 11px;
+    }
+    .tag-chip input {
+      margin: 0;
+    }
+    .tag-section {
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed #e5e7eb;
+    }
+    .tag-section:last-of-type {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .tag-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #4b5563;
+      margin-bottom: 3px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger {
+      border-radius: 999px;
+      border: none;
+      padding: 7px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(56, 189, 248, 0.35);
+    }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    /* 리스트 */
+    .list {
+      margin-top: 6px;
+      max-height: 280px;
+      overflow-y: auto;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      padding: 4px 0;
+    }
+    .list-item {
+      padding: 6px 10px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .list-item:last-child {
+      border-bottom: none;
+    }
+    .list-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .list-title {
+      font-weight: 600;
+      color: #111827;
+    }
+    .list-sub {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .badge-tag {
+      display: inline-flex;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: #eef2ff;
+      color: #4f46e5;
+      margin-left: 4px;
+    }
+
+    .json-box {
+      width: 100%;
+      min-height: 120px;
+      font-size: 11px;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      white-space: pre-wrap;
+    }
+
+    /* 회원 리스트 */
+    .user-list {
+      margin-top: 6px;
+      border-top: 1px solid #eee;
+      padding-top: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .user-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #f1f1f1;
+      font-size: 12px;
+    }
+    .user-item:last-child {
+      border-bottom: none;
+    }
+    .user-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .user-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .user-name {
+      font-weight: 600;
+      color: #111827;
+    }
+    .user-role-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: #1d4ed8;
+    }
+    .user-meta {
+      font-size: 11px;
+      color: #6b7280;
+    }
+    .current-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+      margin-right: 4px;
+    }
+    .user-item-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: #16a34a;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Hany 부동산 관리자</h1>
+    <div class="subtitle">매물 등록 / 관리 및 회원 정보를 확인할 수 있습니다.</div>
+
+    <div class="lang-bar">
+      <button class="btn-secondary" type="button" id="goMainBtn">메인 페이지로</button>
+      <button id="langToggleBtn" class="btn-secondary" type="button">Tiếng Việt</button>
+    </div>
+
+    <div class="grid">
+      <!-- 왼쪽: 매물 등록 / 회원 보기 -->
+      <div class="left">
+        <!-- 새 매물 등록 -->
+        <div class="card">
+          <div class="card-title">
+            <span>1</span>
+            새 매물 등록
+          </div>
+
+          <div class="form-row">
+            <label>제목</label>
+            <input id="title" placeholder="예: 푸미흥 2룸 오피스텔" />
+          </div>
+
+          <div class="form-row">
+            <label>가격</label>
+            <input id="price" placeholder="예: 보증금 1,000 / 월세 900" />
+          </div>
+
+          <div class="form-row">
+            <label>위치</label>
+            <input id="location" placeholder="예: 호치민 푸미흥, 7군" />
+          </div>
+
+          <div class="form-row">
+            <label>구글 지도 링크</label>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <input
+                id="mapUrl"
+                style="flex:1;"
+                placeholder="https://maps.app.goo.gl/... 또는 https://maps.google.com/..."
+              />
+              <button class="btn-secondary" type="button" id="resolveMapBtn" style="white-space:nowrap;">
+                주소변환
+              </button>
+            </div>
+            <div class="help-text">
+              구글 지도 앱/웹에서 위치 공유 → 링크 복사 후 붙여넣기 (짧은 주소도 변환 가능)
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>설명</label>
+            <textarea id="desc" placeholder="예: 보행가 도보 5분, 관리비 포함, 반려견 가능 등"></textarea>
+          </div>
+
+          <!-- 태그 -->
+          <div class="form-row">
+            <label>태그</label>
+
+            <div class="tag-section">
+              <div class="tag-section-title">지역</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="푸미흥" /> 푸미흥</label>
+                <label class="tag-chip"><input type="checkbox" value="7군" /> 7군</label>
+                <label class="tag-chip"><input type="checkbox" value="1군" /> 1군</label>
+                <label class="tag-chip"><input type="checkbox" value="2군" /> 2군</label>
+                <label class="tag-chip"><input type="checkbox" value="투득군" /> 투득군</label>
+                <label class="tag-chip"><input type="checkbox" value="빈탄군" /> 빈탄군</label>
+                <label class="tag-chip"><input type="checkbox" value="냐베군" /> 냐베군</label>
+              </div>
+            </div>
+
+            <div class="tag-section">
+              <div class="tag-section-title">타입</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="원룸" /> 원룸</label>
+                <label class="tag-chip"><input type="checkbox" value="1룸" /> 1룸</label>
+                <label class="tag-chip"><input type="checkbox" value="1.5룸" /> 1.5룸</label>
+                <label class="tag-chip"><input type="checkbox" value="2룸" /> 2룸</label>
+                <label class="tag-chip"><input type="checkbox" value="3룸 이상" /> 3룸 이상</label>
+                <label class="tag-chip"><input type="checkbox" value="4룸" /> 4룸</label>
+                <label class="tag-chip"><input type="checkbox" value="오피스텔" /> 오피스텔</label>
+                <label class="tag-chip"><input type="checkbox" value="아파트" /> 아파트</label>
+                <label class="tag-chip"><input type="checkbox" value="빌라" /> 빌라</label>
+                <label class="tag-chip"><input type="checkbox" value="주택" /> 주택</label>
+                <label class="tag-chip"><input type="checkbox" value="타운하우스" /> 타운하우스</label>
+                <label class="tag-chip"><input type="checkbox" value="쉐어하우스" /> 쉐어하우스</label>
+                <label class="tag-chip"><input type="checkbox" value="상가" /> 상가</label>
+                <label class="tag-chip"><input type="checkbox" value="사무실" /> 사무실</label>
+                <label class="tag-chip"><input type="checkbox" value="복층" /> 복층</label>
+                <label class="tag-chip"><input type="checkbox" value="복복층" /> 복복층</label>
+                <label class="tag-chip"><input type="checkbox" value="화장실 2개" /> 화장실 2개</label>
+                <label class="tag-chip"><input type="checkbox" value="화장실 3개" /> 화장실 3개</label>
+                <label class="tag-chip"><input type="checkbox" value="화장실 4개" /> 화장실 4개</label>
+              </div>
+            </div>
+
+            <div class="tag-section">
+              <div class="tag-section-title">계약형태</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="전세" /> 전세</label>
+                <label class="tag-chip"><input type="checkbox" value="반전세" /> 반전세</label>
+                <label class="tag-chip"><input type="checkbox" value="월세" /> 월세</label>
+                <label class="tag-chip"><input type="checkbox" value="단기임대" /> 단기임대</label>
+              </div>
+            </div>
+
+            <div class="tag-section">
+              <div class="tag-section-title">옵션</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="풀옵션" /> 풀옵션</label>
+                <label class="tag-chip"><input type="checkbox" value="반옵션" /> 반옵션</label>
+                <label class="tag-chip"><input type="checkbox" value="에어컨" /> 에어컨</label>
+                <label class="tag-chip"><input type="checkbox" value="가전포함" /> 가전포함</label>
+                <label class="tag-chip"><input type="checkbox" value="가구포함" /> 가구포함</label>
+                <label class="tag-chip"><input type="checkbox" value="관리비포함" /> 관리비 포함</label>
+                <label class="tag-chip"><input type="checkbox" value="관리비별도" /> 관리비 별도</label>
+                <label class="tag-chip"><input type="checkbox" value="전기세별도" /> 전기세 별도</label>
+                <label class="tag-chip"><input type="checkbox" value="인터넷포함" /> 인터넷 포함</label>
+                <label class="tag-chip"><input type="checkbox" value="청소서비스" /> 청소 서비스</label>
+              </div>
+            </div>
+
+            <div class="tag-section">
+              <div class="tag-section-title">주차 · 반려동물</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="주차가능" /> 주차 가능</label>
+                <label class="tag-chip"><input type="checkbox" value="오토바이주차" /> 오토바이 주차</label>
+                <label class="tag-chip"><input type="checkbox" value="반려견가능" /> 반려견 가능</label>
+                <label class="tag-chip"><input type="checkbox" value="반려묘가능" /> 반려묘 가능</label>
+              </div>
+            </div>
+
+            <div class="tag-section">
+              <div class="tag-section-title">편의시설</div>
+              <div class="tag-group">
+                <label class="tag-chip"><input type="checkbox" value="신축" /> 신축</label>
+                <label class="tag-chip"><input type="checkbox" value="리모델링" /> 리모델링</label>
+                <label class="tag-chip"><input type="checkbox" value="보안24시간" /> 보안 24시간</label>
+                <label class="tag-chip"><input type="checkbox" value="엘리베이터" /> 엘리베이터</label>
+                <label class="tag-chip"><input type="checkbox" value="헬스장" /> 헬스장</label>
+                <label class="tag-chip"><input type="checkbox" value="수영장" /> 수영장</label>
+                <label class="tag-chip"><input type="checkbox" value="테라스" /> 테라스</label>
+                <label class="tag-chip"><input type="checkbox" value="발코니" /> 발코니</label>
+                <label class="tag-chip"><input type="checkbox" value="시티뷰" /> 시티뷰</label>
+                <label class="tag-chip"><input type="checkbox" value="리버뷰" /> 리버뷰</label>
+                <label class="tag-chip"><input type="checkbox" value="고층" /> 고층</label>
+                <label class="tag-chip"><input type="checkbox" value="저층" /> 저층</label>
+                <label class="tag-chip"><input type="checkbox" value="즉시입주" /> 즉시 입주</label>
+              </div>
+            </div>
+
+            <div class="help-text">
+              해당 매물에 어울리는 태그를 선택해주세요. (지역 / 타입 / 계약 형태 / 옵션 / 편의 등)
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>이미지 (여러 장 선택 가능)</label>
+            <input id="images" type="file" accept="image/*" multiple />
+            <div class="help-text">
+              모바일 사진첩 / 컴퓨터 파일에서 이미지를 선택하면 자동으로 미리보기가 생성됩니다.
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>이미지 미리보기</label>
+            <div id="preview" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+          </div>
+
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button class="btn-primary" type="button" id="saveBtn">매물 등록</button>
+            <button class="btn-secondary" type="button" id="clearBtn">입력 초기화</button>
+          </div>
+        </div>
+
+        <!-- 회원 보기 -->
+        <div class="card" style="margin-top:12px;">
+          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div>
+              <span>2</span>
+              회원 보기
+            </div>
+            <button class="btn-secondary" type="button" id="loadUsersBtn">회원 목록 불러오기</button>
+          </div>
+          <div id="userListContainer" class="user-list"></div>
+          <div class="help-text" style="margin-top:6px;">
+            서버 또는 브라우저에 저장된 회원 정보를 불러와 보여줍니다.
+            현재 로그인 중인 회원은 초록색 점으로 표시됩니다.
+          </div>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 등록된 매물 / JSON -->
+      <div class="right">
+        <!-- 등록된 매물 -->
+        <div class="card">
+          <div class="card-title">
+            <span>3</span>
+            등록된 매물
+          </div>
+          <div id="listContainer" class="list"></div>
+          <div class="help-text">
+            Hany 부동산 메인 화면(index.html)에서 불러오는 데이터입니다.
+          </div>
+        </div>
+
+        <!-- JSON 미리보기 / 백업 -->
+        <div class="card" style="margin-top:12px;">
+          <div class="card-title">
+            <span>4</span>
+            JSON 미리보기 / 백업
+          </div>
+          <textarea id="jsonBox" class="json-box" readonly></textarea>
+          <div class="help-text">
+            문제가 발생했을 때 이 내용을 복사해두면 복구가 수월합니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 언어 토글용 i18n =====
+    let currentLang = "ko";
+
+    const koToViText = {
+      "Hany 부동산 관리자": "Quản lý bất động sản Hany",
+      "매물 등록 / 관리 및 회원 정보를 확인할 수 있습니다.": "Bạn có thể đăng / quản lý tin và xem thông tin thành viên.",
+      "메인 페이지로": "Về trang chính",
+      "새 매물 등록": "Đăng tin mới",
+      "제목": "Tiêu đề",
+      "가격": "Giá",
+      "위치": "Vị trí",
+      "구글 지도 링크": "Link Google Maps",
+      "설명": "Mô tả",
+      "태그": "Thẻ (tag)",
+      "지역": "Khu vực",
+      "타입": "Loại phòng",
+      "계약형태": "Hình thức hợp đồng",
+      "옵션": "Tùy chọn / Nội thất",
+      "주차 · 반려동물": "Đậu xe · Thú cưng",
+      "편의시설": "Tiện ích tòa nhà",
+      "이미지 (여러 장 선택 가능)": "Hình ảnh (có thể chọn nhiều hình)",
+      "이미지 미리보기": "Xem trước hình ảnh",
+      "회원 보기": "Danh sách thành viên",
+      "회원 목록 불러오기": "Tải danh sách thành viên",
+      "등록된 매물": "Tin đã đăng",
+      "JSON 미리보기 / 백업": "Xem trước JSON / Sao lưu",
+      "해당 매물에 어울리는 태그를 선택해주세요. (지역 / 타입 / 계약 형태 / 옵션 / 편의 등)": "Hãy chọn các thẻ phù hợp với tin này. (Khu vực / Loại / Hợp đồng / Nội thất / Tiện ích...)",
+      "모바일 사진첩 / 컴퓨터 파일에서 이미지를 선택하면 자동으로 미리보기가 생성됩니다.": "Chọn hình từ điện thoại hoặc máy tính, phần xem trước sẽ tự hiển thị.",
+      "서버 또는 브라우저에 저장된 회원 정보를 불러와 보여줍니다.": "Hiển thị danh sách thành viên lưu trên server hoặc trình duyệt.",
+      "현재 로그인 중인 회원은 초록색 점으로 표시됩니다.": "Thành viên đang đăng nhập sẽ có chấm xanh.",
+      "Hany 부동산 메인 화면(index.html)에서 불러오는 데이터입니다.": "Dữ liệu được trang chính Hany (index.html) sử dụng.",
+      "문제가 발생했을 때 이 내용을 복사해두면 복구가 수월합니다.": "Khi có lỗi, bạn có thể sao chép nội dung này để khôi phục dễ dàng.",
+      "매물 등록": "Đăng tin",
+      "입력 초기화": "Xóa nội dung",
+      "주소변환": "Chuyển đổi địa chỉ",
+      "등록된 매물이 없습니다.": "Chưa có tin nào được đăng.",
+      "불러오는 중...": "Đang tải...",
+      "등록된 회원이 없습니다.": "Chưa có thành viên nào.",
+      "관리자": "Quản trị viên",
+      "회원": "Thành viên",
+      "현재 로그인": "Đang đăng nhập",
+      "전화번호 미입력": "Chưa có số điện thoại",
+
+      "푸미흥": "Phú Mỹ Hưng",
+      "7군": "Quận 7",
+      "1군": "Quận 1",
+      "2군": "Quận 2",
+      "투득군": "TP. Thủ Đức",
+      "빈탄군": "Quận Bình Thạnh",
+      "냐베군": "Huyện Nhà Bè",
+
+      "원룸": "Phòng 1 (studio)",
+      "1룸": "1 phòng",
+      "1.5룸": "1.5 phòng",
+      "2룸": "2 phòng",
+      "3룸 이상": "Từ 3 phòng trở lên",
+      "4룸": "4 phòng",
+      "오피스텔": "Officetel",
+      "아파트": "Căn hộ",
+      "빌라": "Biệt thự",
+      "주택": "Nhà riêng",
+      "타운하우스": "Nhà phố / townhouse",
+      "쉐어하우스": "Nhà share",
+      "상가": "Mặt bằng kinh doanh",
+      "사무실": "Văn phòng",
+      "복층": "Gác lửng / duplex",
+      "복복층": "Duplex nhiều tầng",
+      "화장실 2개": "2 nhà vệ sinh",
+      "화장실 3개": "3 nhà vệ sinh",
+      "화장실 4개": "4 nhà vệ sinh",
+
+      "전세": "Jeonse (cọc lớn, không thuê tháng)",
+      "반전세": "Bán jeonse (cọc + thuê)",
+      "월세": "Thuê tháng",
+      "단기임대": "Thuê ngắn hạn",
+
+      "풀옵션": "Full nội thất",
+      "반옵션": "Nội thất cơ bản",
+      "에어컨": "Máy lạnh",
+      "가전포함": "Bao gồm điện máy",
+      "가구포함": "Bao gồm nội thất",
+      "관리비포함": "Đã gồm phí quản lý",
+      "관리비별도": "Phí quản lý tính riêng",
+      "전기세별도": "Điện tính riêng",
+      "인터넷포함": "Bao gồm internet",
+      "청소서비스": "Có dịch vụ dọn dẹp",
+
+      "주차가능": "Có chỗ đậu xe",
+      "오토바이주차": "Đậu xe máy",
+      "반려견가능": "Cho nuôi chó",
+      "반려묘가능": "Cho nuôi mèo",
+
+      "신축": "Nhà mới xây",
+      "리모델링": "Đã sửa mới",
+      "보안24시간": "Bảo vệ 24 giờ",
+      "엘리베이터": "Thang máy",
+      "헬스장": "Phòng gym",
+      "수영장": "Hồ bơi",
+      "테라스": "Sân thượng / terrace",
+      "발코니": "Ban công",
+      "시티뷰": "View thành phố",
+      "리버뷰": "View sông",
+      "고층": "Tầng cao",
+      "저층": "Tầng thấp",
+      "즉시입주": "Vào ở ngay"
+    };
+
+    const koToViPlaceholder = {
+      "예: 푸미흥 2룸 오피스텔": "VD: Phú Mỹ Hưng căn 2 phòng ngủ",
+      "예: 보증금 1,000 / 월세 900": "VD: Cọc 1.000 / Thuê 900",
+      "예: 호치민 푸미흥, 7군": "VD: HCM Phú Mỹ Hưng, Quận 7",
+      "https://maps.app.goo.gl/... 또는 https://maps.google.com/...": "https://maps.app.goo.gl/... hoặc https://maps.google.com/...",
+      "예: 보행가 도보 5분, 관리비 포함, 반려견 가능 등": "VD: Cách phố đi bộ 5 phút, đã gồm phí quản lý, cho nuôi chó nhỏ..."
+    };
+
+    const viToKoText = {};
+    Object.keys(koToViText).forEach((k) => {
+      viToKoText[koToViText[k]] = k;
+    });
+    const viToKoPlaceholder = {};
+    Object.keys(koToViPlaceholder).forEach((k) => {
+      viToKoPlaceholder[koToViPlaceholder[k]] = k;
+    });
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      const textMap = lang === "vi" ? koToViText : viToKoText;
+      const placeholderMap = lang === "vi" ? koToViPlaceholder : viToKoPlaceholder;
+
+      // 텍스트 노드 전체 돌면서 교체
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      let node;
+      while ((node = walker.nextNode())) {
+        const original = node.nodeValue;
+        const trimmed = original.trim();
+        if (!trimmed) continue;
+        if (textMap[trimmed]) {
+          node.nodeValue = original.replace(trimmed, textMap[trimmed]);
+        }
+      }
+
+      // placeholder 교체
+      document.querySelectorAll("[placeholder]").forEach((el) => {
+        const ph = el.getAttribute("placeholder");
+        if (placeholderMap[ph]) {
+          el.setAttribute("placeholder", placeholderMap[ph]);
+        }
+      });
+
+      // 버튼 텍스트 변경
+      const btn = document.getElementById("langToggleBtn");
+      if (btn) {
+        btn.textContent = lang === "vi" ? "한국어" : "Tiếng Việt";
+      }
+
+      document.documentElement.setAttribute("data-lang", lang);
+    }
+
+    // alert, 메시지에서 쓸 간단 헬퍼
+    function tr(ko, vi) {
+      return currentLang === "vi" ? vi : ko;
+    }
+
+    // ===== 공통 DOM =====
+    const goMainBtn = document.getElementById("goMainBtn");
+    const titleEl = document.getElementById("title");
+    const priceEl = document.getElementById("price");
+    const locationEl = document.getElementById("location");
+    const mapUrlEl = document.getElementById("mapUrl");
+    const descEl = document.getElementById("desc");
+    const imagesInput = document.getElementById("images");
+    const previewEl = document.getElementById("preview");
+    const listContainer = document.getElementById("listContainer");
+    const jsonBox = document.getElementById("jsonBox");
+    const saveBtn = document.getElementById("saveBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const resolveMapBtn = document.getElementById("resolveMapBtn");
+    const langToggleBtn = document.getElementById("langToggleBtn");
+
+    const loadUsersBtn = document.getElementById("loadUsersBtn");
+    const userListContainer = document.getElementById("userListContainer");
+
+    const STORAGE_KEY = "hany_listings";
+
+    if (langToggleBtn) {
+      langToggleBtn.addEventListener("click", () => {
+        const next = currentLang === "ko" ? "vi" : "ko";
+        applyLanguage(next);
+      });
+    }
+
+    if (goMainBtn) {
+      goMainBtn.addEventListener("click", () => {
+        window.location.href = "index.html";
+      });
+    }
+
+    // ===== 이미지 미리보기 =====
+    let currentImages = [];
+
+    function clearPreview() {
+      previewEl.innerHTML = "";
+      currentImages = [];
+    }
+
+    imagesInput.addEventListener("change", () => {
+      clearPreview();
+      const files = Array.from(imagesInput.files || []);
+      if (!files.length) return;
+
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const url = e.target.result;
+          currentImages.push(url);
+          const img = document.createElement("img");
+          img.src = url;
+          img.style.width = "60px";
+          img.style.height = "60px";
+          img.style.objectFit = "cover";
+          img.style.borderRadius = "10px";
+          img.style.border = "1px solid #e5e7eb";
+          previewEl.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    // ===== 로컬 저장소 =====
+    function loadListings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
+    }
+
+    function saveListings(list) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // ===== 폼/리스트 처리 =====
+    function clearForm() {
+      titleEl.value = "";
+      priceEl.value = "";
+      locationEl.value = "";
+      mapUrlEl.value = "";
+      descEl.value = "";
+      imagesInput.value = "";
+      clearPreview();
+      document
+        .querySelectorAll(".tag-group input[type=checkbox]")
+        .forEach((el) => (el.checked = false));
+    }
+
+    // 구글 지도 짧은 주소 변환
+    if (resolveMapBtn && mapUrlEl) {
+      resolveMapBtn.addEventListener("click", async () => {
+        const shortUrl = mapUrlEl.value.trim();
+        if (!shortUrl) {
+          alert(tr("먼저 구글 지도 링크를 입력해주세요.", "Hãy nhập link Google Maps trước."));
+          return;
+        }
+        try {
+          const res = await fetch("/api/resolve-map?url=" + encodeURIComponent(shortUrl));
+          if (!res.ok) {
+            alert(tr(
+              "주소 변환 요청에 실패했습니다. (서버 응답 없음)",
+              "Không chuyển đổi được địa chỉ. (Server không phản hồi)"
+            ));
+            return;
+          }
+          const data = await res.json();
+          if (data.fullUrl) {
+            mapUrlEl.value = data.fullUrl;
+            alert(tr("구글 지도 주소가 변환되었습니다.", "Đã chuyển đổi địa chỉ Google Maps."));
+          } else {
+            alert(tr(
+              "주소를 변환하지 못했습니다.",
+              "Không thể chuyển đổi địa chỉ."
+            ));
+          }
+        } catch (e) {
+          console.error(e);
+          alert(tr(
+            "주소 변환 중 오류가 발생했습니다.",
+            "Đã xảy ra lỗi khi chuyển đổi địa chỉ."
+          ));
+        }
+      });
+    }
+
+    function renderList(list) {
+      listContainer.innerHTML = "";
+      if (!list.length) {
+        listContainer.innerHTML =
+          '<div style="padding:8px 10px;font-size:12px;color:#6b7280;">' +
+          (currentLang === "vi" ? "Chưa có tin nào được đăng." : "등록된 매물이 없습니다.") +
+          "</div>";
+        jsonBox.value = "[]";
+        return;
+      }
+
+      list.forEach((item) => {
+        const li = document.createElement("div");
+        li.className = "list-item";
+
+        const tags = (item.tags || []).map((t) => `<span class="badge-tag">${t}</span>`).join("");
+
+        li.innerHTML = `
+          <div class="list-main">
+            <div class="list-title">${item.title || ""}</div>
+            <div class="list-sub">
+              ${item.location || ""} · ${item.price || ""}
+              ${tags}
+            </div>
+          </div>
+          <div>
+            <button class="btn-danger" type="button" data-id="${item.id}">${currentLang === "vi" ? "Xóa" : "삭제"}</button>
+          </div>
+        `;
+
+        const delBtn = li.querySelector("button.btn-danger");
+        delBtn.addEventListener("click", () => {
+          if (!confirm(tr("정말 이 매물을 삭제하시겠습니까?", "Bạn có chắc muốn xóa tin này không?")))
+            return;
+          const updated = loadListings().filter((x) => x.id !== item.id);
+          saveListings(updated);
+          renderList(updated);
+        });
+
+        listContainer.appendChild(li);
+      });
+
+      jsonBox.value = JSON.stringify(list, null, 2);
+    }
+
+    function handleSaveListing() {
+      const title = titleEl.value.trim();
+      const price = priceEl.value.trim();
+      const location = locationEl.value.trim();
+      const mapUrl = mapUrlEl.value.trim();
+      const desc = descEl.value.trim();
+
+      if (!title) {
+        alert(tr("제목은 필수입니다.", "Tiêu đề là bắt buộc."));
+        return;
+      }
+
+      const tags = Array.from(
+        document.querySelectorAll(".tag-group input[type=checkbox]:checked")
+      ).map((el) => el.value);
+
+      const list = loadListings();
+      const newId = Date.now();
+
+      const item = {
+        id: newId,
+        title,
+        price,
+        location,
+        desc,
+        tags,
+        mapUrl,
+        images: currentImages.slice()
+      };
+
+      list.push(item);
+      saveListings(list);
+      alert(tr("매물이 등록되었습니다.", "Tin đã được đăng."));
+      renderList(list);
+      clearForm();
+    }
+
+    if (saveBtn) {
+      saveBtn.addEventListener("click", handleSaveListing);
+    }
+    if (clearBtn) {
+      clearBtn.addEventListener("click", clearForm);
+    }
+
+    // ===== 회원 보기 기능 =====
+    function getCurrentUserIdLike() {
+      try {
+        const infoRaw = localStorage.getItem("hany_current_user_info");
+        if (infoRaw) {
+          const info = JSON.parse(infoRaw);
+          if (info && (info.id || info.nickname)) {
+            return info.id || info.nickname;
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      try {
+        const id = localStorage.getItem("hany_current_user");
+        if (id) return id;
+      } catch (e2) {
+        console.error(e2);
+      }
+      return null;
+    }
+
+    function renderUsers(users) {
+      if (!userListContainer) return;
+      userListContainer.innerHTML = "";
+      if (!users || !users.length) {
+        userListContainer.innerHTML =
+          '<div style="font-size:12px;color:#777;">' +
+          (currentLang === "vi" ? "Chưa có thành viên nào." : "등록된 회원이 없습니다.") +
+          "</div>";
+        return;
+      }
+      const currentIdLike = getCurrentUserIdLike();
+
+      users.forEach((u) => {
+        const div = document.createElement("div");
+        div.className = "user-item";
+
+        let isCurrent = false;
+        if (currentIdLike) {
+          if (u.id === currentIdLike || u.nickname === currentIdLike) {
+            isCurrent = true;
+          }
+        }
+
+        const roleLabel = u.role === "admin"
+          ? (currentLang === "vi" ? "Quản trị viên" : "관리자")
+          : (currentLang === "vi" ? "Thành viên" : "회원");
+        const phoneText = u.phone
+          ? u.phone
+          : (currentLang === "vi" ? "Chưa có số điện thoại" : "전화번호 미입력");
+
+        div.innerHTML =
+          '<div class="user-main">' +
+          '<div class="user-name-row">' +
+          '<span class="user-name">' +
+          (u.nickname || u.id || "") +
+          "</span>" +
+          '<span class="user-role-badge">' +
+          roleLabel +
+          "</span>" +
+          "</div>" +
+          '<div class="user-meta">ID: ' +
+          (u.id || "-") +
+          " · " +
+          phoneText +
+          "</div>" +
+          "</div>" +
+          '<div class="user-item-right">' +
+          (isCurrent
+            ? '<span class="current-indicator"></span><span>' +
+              (currentLang === "vi" ? "Đang đăng nhập" : "현재 로그인") +
+              "</span>"
+            : "") +
+          "</div>";
+
+        userListContainer.appendChild(div);
+      });
+    }
+
+    async function fetchUsersFromServer() {
+      try {
+        const res = await fetch("/api/users", { method: "GET" });
+        if (!res.ok) {
+          return {
+            error: currentLang === "vi"
+              ? "Không tìm thấy API danh sách thành viên (/api/users) trên server."
+              : "서버에서 회원 목록 API(/api/users)를 찾을 수 없습니다."
+          };
+        }
+        const data = await res.json();
+        if (data && data.ok && Array.isArray(data.users)) {
+          return { users: data.users };
+        }
+        return {
+          error: currentLang === "vi"
+            ? "Định dạng dữ liệu danh sách thành viên không hợp lệ."
+            : "회원 목록 응답 형식이 올바르지 않습니다."
+        };
+      } catch (e) {
+        console.error(e);
+        return {
+          error: currentLang === "vi"
+            ? "Đã xảy ra lỗi khi yêu cầu server."
+            : "서버 요청 중 오류가 발생했습니다."
+        };
+      }
+    }
+
+    function loadUsersFromLocal() {
+      try {
+        const raw = localStorage.getItem("hany_users");
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
+    }
+
+    async function handleLoadUsers() {
+      if (!userListContainer) return;
+      userListContainer.innerHTML =
+        '<div style="font-size:12px;color:#777;">' +
+        (currentLang === "vi" ? "Đang tải..." : "불러오는 중...") +
+        "</div>";
+
+      // 1) 서버에서 먼저 시도
+      const result = await fetchUsersFromServer();
+      if (result && result.users) {
+        renderUsers(result.users);
+        return;
+      }
+
+      // 2) 서버 실패 시 localStorage로 fallback
+      const localUsers = loadUsersFromLocal();
+      if (localUsers.length) {
+        renderUsers(localUsers);
+        alert(
+          currentLang === "vi"
+            ? "Không lấy được danh sách thành viên từ server, đang hiển thị dữ liệu lưu trên trình duyệt."
+            : "서버에서 회원 목록을 가져오지 못해, 브라우저에 저장된 회원 목록을 대신 표시합니다."
+        );
+        return;
+      }
+
+      userListContainer.innerHTML =
+        '<div style="font-size:12px;color:#777;">' +
+        (currentLang === "vi" ? "Chưa có thành viên nào." : "등록된 회원이 없습니다.") +
+        "</div>";
+      if (result && result.error) {
+        alert(result.error);
+      } else {
+        alert(
+          currentLang === "vi"
+            ? "Không lấy được danh sách thành viên."
+            : "회원 목록을 가져오지 못했습니다."
+        );
+      }
+    }
+
+    if (loadUsersBtn) {
+      loadUsersBtn.addEventListener("click", handleLoadUsers);
+    }
+
+    // ===== 초기 렌더 =====
+    const initialList = loadListings();
+    renderList(initialList);
+    applyLanguage("ko");
+  </script>
+</body>
+</html>
