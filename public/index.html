@@ -1,11 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>Hany 부동산</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <style>
+<meta charset="utf-8"/>
+<title>Hany 부동산</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<style>
     * {
       box-sizing: border-box;
       margin: 0;
@@ -565,128 +565,197 @@
         padding-top: 32px;
       }
     }
-  </style>
+  
+
+.banner-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(15,111,191,0.5);
+  border: 1px solid rgba(255,255,255,0.7);
+}
+.banner-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+/* === 로고 부분 개선 === */
+.banner-logo {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.8),
+              0 6px 16px rgba(0,0,0,0.25);
+  z-index: 10;
+  background: none !important;
+}
+
+.banner-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+  z-index: 10;
+  filter: brightness(1.05) contrast(1.1);
+}
+
+
+/* === 로고 H 제거 & 선명도 조정 === */
+.banner-logo::before {
+  content: none !important;
+}
+
+.banner-logo {
+  background: none !important;
+}
+
+.banner-logo img {
+  filter: none !important;
+}
+
+
+/* === 로고 완전 불투명 + 선명도 향상 === */
+.banner-logo {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.9),
+              0 6px 18px rgba(0,0,0,0.25);
+  z-index: 20;
+  background: #fff;
+  opacity: 1 !important;
+}
+
+.banner-logo img {
+  position: relative;
+  z-index: 25;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1 !important;
+  filter: brightness(1.08) contrast(1.12);
+  background: #fff;
+}
+</style>
 </head>
 <body>
-  <!-- 상단 로그인 / 회원 UI -->
-  <div class="top-auth">
-    <div id="authLoggedOut">
-      <button type="button" id="signupBtn" class="auth-btn">회원가입</button>
-      <button type="button" id="loginBtn" class="auth-btn primary">로그인</button>
-    </div>
-    <div id="authLoggedIn" class="hidden">
-      <span id="welcomeText" class="auth-name"></span>
-      <button type="button" id="adminPageBtn" class="auth-btn hidden">관리자 페이지</button>
-      <button type="button" id="logoutBtn" class="auth-btn">로그아웃</button>
-    </div>
-    <button type="button" id="langToggleBtn" class="auth-btn">Tiếng Việt</button>
-  </div>
-
-  <!-- 회원가입/로그인 모달 -->
-  <div id="authModalBackdrop" class="modal-backdrop hidden">
-    <div class="auth-modal">
-      <div class="auth-modal-header">
-        <div id="authModalTitle" class="auth-modal-title">회원가입</div>
-        <button type="button" id="authModalClose" class="auth-modal-close">×</button>
-      </div>
-      <!-- 회원가입 폼 -->
-      <div id="signupForm" class="auth-form">
-        <div class="auth-field">
-          <label for="signupNickname">닉네임</label>
-          <input id="signupNickname" type="text" />
-        </div>
-        <div class="auth-field">
-          <label for="signupPhone">전화번호</label>
-          <input id="signupPhone" type="text" placeholder="예: 010-1234-5678" />
-        </div>
-        <div class="auth-field">
-          <label for="signupPassword">비밀번호</label>
-          <input id="signupPassword" type="password" />
-        </div>
-        <button type="button" id="signupSubmitBtn" class="auth-submit-btn">회원가입</button>
-      </div>
-      <!-- 로그인 폼 -->
-      <div id="loginForm" class="auth-form hidden">
-        <div class="auth-field">
-          <label for="loginNickname">닉네임</label>
-          <input id="loginNickname" type="text" />
-        </div>
-        <div class="auth-field">
-          <label for="loginPassword">비밀번호</label>
-          <input id="loginPassword" type="password" />
-        </div>
-        <button type="button" id="loginSubmitBtn" class="auth-submit-btn">로그인</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="app">
-    <!-- 상단 배너 -->
-    <div class="banner">
-      <img src="https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg" alt="배너 이미지" />
-      <div class="banner-overlay">
-        <div class="banner-left">
-          <div class="banner-top-row">
-            <div class="banner-logo"></div>
-            <div class="banner-texts">
-              <h1>Hany 부동산</h1>
-              <p>당신의 새로운 공간, 여기서 시작하세요.</p>
-            </div>
-          </div>
-          <div class="banner-badge">신뢰받는 한국인 전담 부동산</div>
-        </div>
-        <div class="banner-right">
-          <div class="banner-pill">오늘 신규 등록 매물 <span id="bannerCount">0</span>건</div>
-          <div class="banner-stat">푸미흥 · 7군 · 리버뷰 특화</div>
-        </div>
-      </div>
-    </div>
-
-    <header>
-      <p>원하는 지역 / 가격을 검색해보세요.</p>
-      <button id="locateBtn" class="locate-btn">📍 내 위치</button>
-    </header>
-
-    <div class="search-box">
-      <input id="searchInput" type="text" placeholder="예: 푸미흥, 2룸, 1000달러" />
-      <button id="searchBtn">검색</button>
-    </div>
-
-    <div class="tag-row">
-      <div class="tag" data-tag="푸미흥">푸미흥</div>
-      <div class="tag" data-tag="7군">7군</div>
-      <div class="tag" data-tag="1룸">1룸</div>
-      <div class="tag" data-tag="2룸">2룸</div>
-      <div class="tag" data-tag="오피스텔">오피스텔</div>
-      <div class="tag" data-tag="전세">전세</div>
-      <div class="tag" data-tag="월세">월세</div>
-    </div>
-
-    <div id="cardList" class="card-list"></div>
-
-    <div id="emptyMsg" class="empty" style="display:none;">
-      조건에 맞는 매물이 없습니다.<br />
+<!-- 상단 로그인 / 회원 UI -->
+<div class="top-auth">
+<div id="authLoggedOut">
+<button class="auth-btn" id="signupBtn" type="button">회원가입</button>
+<button class="auth-btn primary" id="loginBtn" type="button">로그인</button>
+</div>
+<div class="hidden" id="authLoggedIn">
+<span class="auth-name" id="welcomeText"></span>
+<button class="auth-btn hidden" id="adminPageBtn" type="button">관리자 페이지</button>
+<button class="auth-btn" id="logoutBtn" type="button">로그아웃</button>
+</div>
+<button class="auth-btn" id="langToggleBtn" type="button">Tiếng Việt</button>
+</div>
+<!-- 회원가입/로그인 모달 -->
+<div class="modal-backdrop hidden" id="authModalBackdrop">
+<div class="auth-modal">
+<div class="auth-modal-header">
+<div class="auth-modal-title" id="authModalTitle">회원가입</div>
+<button class="auth-modal-close" id="authModalClose" type="button">×</button>
+</div>
+<!-- 회원가입 폼 -->
+<div class="auth-form" id="signupForm">
+<div class="auth-field">
+<label for="signupNickname">닉네임</label>
+<input id="signupNickname" type="text"/>
+</div>
+<div class="auth-field">
+<label for="signupPhone">전화번호</label>
+<input id="signupPhone" placeholder="예: 010-1234-5678" type="text"/>
+</div>
+<div class="auth-field">
+<label for="signupPassword">비밀번호</label>
+<input id="signupPassword" type="password"/>
+</div>
+<button class="auth-submit-btn" id="signupSubmitBtn" type="button">회원가입</button>
+</div>
+<!-- 로그인 폼 -->
+<div class="auth-form hidden" id="loginForm">
+<div class="auth-field">
+<label for="loginNickname">닉네임</label>
+<input id="loginNickname" type="text"/>
+</div>
+<div class="auth-field">
+<label for="loginPassword">비밀번호</label>
+<input id="loginPassword" type="password"/>
+</div>
+<button class="auth-submit-btn" id="loginSubmitBtn" type="button">로그인</button>
+</div>
+</div>
+</div>
+<div class="app">
+<!-- 상단 배너 -->
+<div class="banner">
+<img alt="배너 이미지" src="https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg"/>
+<div class="banner-overlay">
+<div class="banner-left">
+<div class="banner-top-row">
+<div class="banner-logo"><img alt="로고 이미지" src="a7b6d78b-2fc8-46b1-b9af-a0cb990c6c06.png"/></div>
+<div class="banner-texts">
+<h1>Hany 부동산</h1>
+<p>당신의 새로운 공간, 여기서 시작하세요.</p>
+</div>
+</div>
+<div class="banner-badge">신뢰받는 한국인 전담 부동산</div>
+</div>
+<div class="banner-right">
+<div class="banner-pill">신규 등록 매물 <span id="bannerCount">0</span>건</div>
+<div class="banner-stat">냐베군 · 타운하우스 특화</div>
+</div>
+</div>
+</div>
+<header>
+<p>원하는 지역 / 가격을 검색해보세요.</p>
+<button class="locate-btn" id="locateBtn">📍 내 위치</button>
+</header>
+<div class="search-box">
+<input id="searchInput" placeholder="예: 푸미흥, 2룸, 1000달러" type="text"/>
+<button id="searchBtn">검색</button>
+</div>
+<div class="tag-row">
+<div class="tag" data-tag="푸미흥">푸미흥</div>
+<div class="tag" data-tag="7군">7군</div>
+<div class="tag" data-tag="1룸">1룸</div>
+<div class="tag" data-tag="2룸">2룸</div>
+<div class="tag" data-tag="오피스텔">오피스텔</div>
+<div class="tag" data-tag="전세">전세</div>
+<div class="tag" data-tag="월세">월세</div>
+</div>
+<div class="card-list" id="cardList"></div>
+<div class="empty" id="emptyMsg" style="display:none;">
+      조건에 맞는 매물이 없습니다.<br/>
       키워드를 바꿔서 다시 검색해보세요.
     </div>
-  </div>
-
-  <!-- 하단 문의 바 -->
-  <div class="bottom-bar">
-    <div class="bottom-inner">
-      <div class="bottom-info" id="bottomInfo">
-        <strong>매물을 선택하면 상세 정보가 여기 표시됩니다.</strong>
+</div>
+<!-- 하단 문의 바 -->
+<div class="bottom-bar">
+<div class="bottom-inner">
+<div class="bottom-info" id="bottomInfo">
+<strong>매물을 선택하면 상세 정보가 여기 표시됩니다.</strong>
         문의 전에 캡처해두면 편해요 :)
       </div>
-      <div class="bottom-buttons">
-        <a id="callLink" href="tel:01000000000" class="primary">전화</a>
-        <a id="kakaoLink" href="https://pf.kakao.com" target="_blank" rel="noopener noreferrer">카톡</a>
-        <a id="zaloLink" href="https://zalo.me/123456789" target="_blank" rel="noopener noreferrer">잘로</a>
-        <a id="telegramLink" href="https://t.me/your_telegram_id" target="_blank" rel="noopener noreferrer">텔레</a>
-      </div>
-    </div>
-  </div>
-
-  <script>
+<div class="bottom-buttons">
+<a class="primary" href="tel:01000000000" id="callLink">전화</a>
+<a href="https://pf.kakao.com" id="kakaoLink" rel="noopener noreferrer" target="_blank">카톡</a>
+<a href="https://zalo.me/123456789" id="zaloLink" rel="noopener noreferrer" target="_blank">잘로</a>
+<a href="https://t.me/your_telegram_id" id="telegramLink" rel="noopener noreferrer" target="_blank">텔레</a>
+</div>
+</div>
+</div>
+<script>
     // ===== 언어 토글용 i18n =====
     let currentLang = "ko";
 
@@ -1308,6 +1377,51 @@
       });
     }
     applyLanguage("ko");
-  </script>
+  
+  // ===== 하단 문의 연락처 적용 =====
+  async function applyBottomContactBar() {
+    try {
+      const res = await fetch("/api/contact-info");
+      const data = await res.json();
+      const $ = (id) => document.getElementById(id);
+      const infoBox = document.getElementById("bottomInfo");
+
+      if (!data || !data.ok) return;
+
+      const c = data.contact || {};
+      const phone = (c.phone || "").trim();
+      const kakao = (c.kakao || "").trim();
+      const zalo = (c.zalo || "").trim();
+      const telegram = (c.telegram || "").trim();
+      const name = (c.name || "").trim();
+
+      // Update info text (optional agent name)
+      if (infoBox && name) {
+        const strong = infoBox.querySelector("strong");
+        if (strong) strong.textContent = name + "에게 문의하세요";
+      }
+
+      // Helper to set link + visibility
+      function setLink(el, href) {
+        if (!el) return;
+        if (href) {
+          el.href = href;
+          el.style.display = "";
+        } else {
+          el.style.display = "none";
+        }
+      }
+
+      setLink($("callLink"), phone ? ("tel:" + phone) : "");
+      setLink($("kakaoLink"), kakao);
+      setLink($("zaloLink"), zalo);
+      setLink($("telegramLink"), telegram);
+    } catch (e) {
+      console.warn("연락처 불러오기 오류:", e);
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", applyBottomContactBar);
+</script>
 </body>
 </html>

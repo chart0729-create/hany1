@@ -75,7 +75,7 @@
     .hero-image-wrap img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       display: block;
     }
     .hero-count {
@@ -111,7 +111,7 @@
     .thumb img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       display: block;
     }
     .thumb.active {
@@ -470,11 +470,13 @@
       }
       return null;
     }
-    // 구글 지도 URL이 %3F, %26 같은 인코딩이나 &amp; 등으로 섞여 있을 때
-    // 보기 좋게 한 번 정리해 주는 함수
-    function normalizeMapUrl(raw) {
-      if (!raw) return "";
-      var url = String(raw).trim();
+
+    // google 지도 URL에서 위도/경도 추출
+    
+    // 구글 지도 URL 정리 (퍼센트 인코딩, &amp; 등)
+    function normalizeMapUrl(url) {
+      if (!url) return "";
+      url = String(url).trim();
 
       // 여러 번 인코딩된 경우(예: https://www.google.com/maps%3Fdaddr%3D...)
       try {
@@ -485,23 +487,22 @@
           url = decoded;
         }
       } catch (e) {
-        // decode 실패해도 그냥 원본 사용
+        // decode 실패해도 그냥 현재 url 사용
       }
 
-      // &amp; / \u0026amp; 등을 실제 & 로 치환
+      // &amp;, \u0026amp; 같은 것들을 실제 & 로 치환
       url = url
-        .replace(/\\u0026amp;/g, "&")
-        .replace(/\\u0026/g, "&")
+        .replace(/\u0026amp;/g, "&")
+        .replace(/\u0026/g, "&")
         .replace(/&amp;/g, "&");
 
       return url;
     }
 
-       // google 지도 URL에서 위도/경도 추출
+    // google 지도 URL에서 위도/경도 추출
     function extractCoordsFromMapUrl(url) {
       if (!url) return null;
 
-      // 먼저 한 번 정리
       url = normalizeMapUrl(url);
 
       // 패턴 1: .../@10.729,106.719,17z/...
@@ -516,24 +517,22 @@
         return { lat: dMatch[1], lng: dMatch[2] };
       }
 
-      // 패턴 3: ?daddr=10.7890857,106.6856635 (...)
+      // 패턴 3: ?daddr=10.7890857,106.6856635 또는 &destination=...
       var daddrMatch = url.match(/[?&](?:daddr|destination)=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
       if (daddrMatch && daddrMatch.length >= 3) {
         return { lat: daddrMatch[1], lng: daddrMatch[2] };
       }
 
       // 패턴 4: q=10.7890857,106.6856635 형태 (검색 좌표)
-      var qVal = getParamFromUrl(url, "q");
-      if (qVal && qVal.match(/-?\d+\.?\d*,-?\d+\.?\d*/)) {
-        var parts = qVal.split(",");
-        return { lat: parts[0], lng: parts[1] };
+      var qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+      if (qMatch && qMatch.length >= 3) {
+        return { lat: qMatch[1], lng: qMatch[2] };
       }
 
-      // 어떤 패턴도 못 찾으면 null
       return null;
     }
 
-// "지도 크게 보기" 외부 링크용 URL
+    // "지도 크게 보기" 외부 링크용 URL
     function buildMapOpenUrl(item) {
       if (item.mapUrl) return item.mapUrl; // 관리자에서 넣은 구글 URL 그대로
       if (item.lat && item.lng) {
@@ -600,142 +599,146 @@
     var idParam = getQueryParam("id");
     var contentEl = document.getElementById("content");
 
-    // 서버에서 단일 매물 조회 (실패 시 localStorage fallback)
-    async function loadListingFromServer(id) {
-      try {
-        const res = await fetch("/api/listings/" + encodeURIComponent(id));
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.ok && data.listing) {
-            return data.listing;
-          }
-        }
-      } catch (e) {
-        console.error("상세 매물 조회 API 오류:", e);
-      }
-      // 서버에서 가져오지 못한 경우 마지막으로 localStorage에서 시도
-      return getListingById(id);
-    }
-
-    async function initDetail() {
-      if (!idParam) {
-        contentEl.innerHTML =
-          '<div class="empty-state">잘못된 접근입니다. 다시 목록에서 선택해주세요.</div>';
-        return;
-      }
-
-      var listing = await loadListingFromServer(idParam);
+    if (!idParam) {
+      contentEl.innerHTML =
+        '<div class="empty-state">잘못된 접근입니다. 다시 목록에서 선택해주세요.</div>';
+    } else {
+      var listing = getListingById(idParam);
       if (!listing) {
         contentEl.innerHTML =
           '<div class="empty-state">해당 매물을 찾을 수 없습니다.<br />목록에서 다시 선택해주세요.</div>';
-        return;
-      }
+      } else {
+        document.title = (listing.title || "매물 상세") + " - Hany 부동산";
 
-      document.title = (listing.title || "매물 상세") + " - Hany 부동산";
+        var images = (listing.images && listing.images.length)
+          ? listing.images
+          : (listing.img ? [listing.img] : []);
 
-      var images = (listing.images && listing.images.length)
-        ? listing.images
-        : (listing.img ? [listing.img] : []);
-
-      var mainImage = images.length ? images[0] : "";
-      var tagsHtml = "";
-      if (listing.tags && listing.tags.length) {
-        for (var i = 0; i < listing.tags.length; i++) {
-          tagsHtml += '<span class="tag-pill">' +
-                      listing.tags[i] +
-                      "</span>";
+        var mainImage = images.length ? images[0] : "";
+        var tagsHtml = "";
+        if (listing.tags && listing.tags.length) {
+          for (var i = 0; i < listing.tags.length; i++) {
+            tagsHtml += '<span class="tag-pill">' +
+                        listing.tags[i] +
+                        "</span>";
+          }
         }
-      }
 
-      var mapOpenUrl = buildMapOpenUrl(listing);
-      var mapFrameUrl = buildMapFrameUrl(listing);
+        var mapOpenUrl = buildMapOpenUrl(listing);
+        var mapFrameUrl = buildMapFrameUrl(listing);
 
-      var html = "";
+        var html = "";
 
-      // 큰 이미지 + 썸네일
-      html += '<section class="hero-card">';
-      html += '  <div class="hero-image-wrap">';
-      html += '    <img id="mainImage" src="' + (mainImage || "") + '" alt="' + (listing.title || "") + '" />';
-      if (images.length) {
-        html += '    <div class="hero-count">' + images.length + '장</div>';
-      }
-      html += '  </div>';
-      if (images.length > 1) {
-        html += '  <div class="hero-body"><div class="thumb-row" id="thumbRow"></div></div>';
-      }
-      html += '</section>';
-
-      // 기본 정보 카드
-      html += '<section class="info-card">';
-      html += '  <div class="title-row">';
-      html += '    <h2>' + (listing.title || "") + '</h2>';
-      html += '    <div class="price">' + (listing.price || "") + '</div>';
-      html += '  </div>';
-      html += '  <div class="location-line">';
-      html += '    <span>' + (listing.location || "") + '</span>';
-      if (mapOpenUrl) {
-        html += '    <a class="map-inline-link" href="' + mapOpenUrl +
-                '" target="_blank">지도 크게 보기</a>';
-      }
-      html += '  </div>';
-      html += '  <div class="tags-row">' + tagsHtml + '</div>';
-      var desc = listing.desc || "";
-      desc = desc.replace(/\n/g, "<br />");
-      html += '  <div class="desc">' + desc + '</div>';
-      html += '</section>';
-
-      // 지도 카드
-      if (mapFrameUrl) {
-        html += '<section class="map-card" id="mapSection">';
-        html += '  <div class="map-title-row">';
-        html += '    <span>위치 지도</span>';
-        if (mapOpenUrl) {
-          html += '    <a class="map-open-link" href="' + mapOpenUrl +
-                  '" target="_blank">구글 지도에서 열기</a>';
+        // 큰 이미지 + 썸네일
+        html += '<section class="hero-card">';
+        html += '  <div class="hero-image-wrap">';
+        html += '    <img id="mainImage" src="' + (mainImage || "") + '" alt="' + (listing.title || "") + '" />';
+        if (images.length) {
+          html += '    <div class="hero-count">' + images.length + '장</div>';
         }
         html += '  </div>';
-        html += '  <div class="map-frame-wrap">';
-        html += '    <iframe id="mapFrame" src="' + mapFrameUrl +
-                '" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>';
-        html += '  </div>';
+        if (images.length > 1) {
+          html += '  <div class="hero-body"><div class="thumb-row" id="thumbRow"></div></div>';
+        }
         html += '</section>';
-      }
 
-      // 문의 버튼
-      html += '<section class="cta-card">';
-      html += '  <a href="tel:01000000000" class="cta-btn primary">전화 문의</a>';
-      html += '  <a href="https://pf.kakao.com" target="_blank" class="cta-btn">카톡 문의</a>';
-      html += '  <a href="https://zalo.me/123456789" target="_blank" class="cta-btn">잘로</a>';
-      html += '  <a href="https://t.me/your_telegram_id" target="_blank" class="cta-btn">텔레</a>';
-      html += '</section>';
+        // 기본 정보 카드
+        html += '<section class="info-card">';
+        html += '  <div class="title-row">';
+        html += '    <h2>' + (listing.title || "") + '</h2>';
+        html += '    <div class="price">' + (listing.price || "") + '</div>';
+        html += '  </div>';
+        html += '  <div class="location-line">';
+        html += '    <span>' + (listing.location || "") + '</span>';
+        if (mapOpenUrl) {
+          html += '    <a class="map-inline-link" href="' + mapOpenUrl +
+                  '" target="_blank">지도 크게 보기</a>';
+        }
+        html += '  </div>';
+        html += '  <div class="tags-row">' + tagsHtml + '</div>';
+        var desc = listing.desc || "";
+        desc = desc.replace(/\n/g, "<br />");
+        html += '  <div class="desc">' + desc + '</div>';
+        html += '</section>';
 
-      contentEl.innerHTML = html;
+        // 지도 카드
+        if (mapFrameUrl) {
+          html += '<section class="map-card" id="mapSection">';
+          html += '  <div class="map-title-row">';
+          html += '    <span>위치 지도</span>';
+          if (mapOpenUrl) {
+            html += '    <a class="map-open-link" href="' + mapOpenUrl +
+                    '" target="_blank">구글 지도에서 열기</a>';
+          }
+          html += '  </div>';
+          html += '  <div class="map-frame-wrap">';
+          html += '    <iframe id="mapFrame" src="' + mapFrameUrl +
+                  '" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>';
+          html += '  </div>';
+          html += '</section>';
+        }
 
-      // 썸네일 클릭 시 대표 이미지 교체
-      if (images.length > 1) {
-        var thumbRow = document.getElementById("thumbRow");
-        var mainImageEl = document.getElementById("mainImage");
+        // 문의 버튼
+        html += '<section class="cta-card">';
+        html += '  <a id="detailCall" href="tel:01000000000" class="cta-btn primary">전화 문의</a>';
+        html += '  <a id="detailKakao" href="https://pf.kakao.com" target="_blank" class="cta-btn">카톡 문의</a>';
+        html += '  <a id="detailZalo" href="https://zalo.me/123456789" target="_blank" class="cta-btn">잘로</a>';
+        html += '  <a id="detailTelegram" href="https://t.me/your_telegram_id" target="_blank" class="cta-btn">텔레</a>';
+        html += '</section>';
 
-        for (var i = 0; i < images.length; i++) {
-          (function (src, idx) {
-            var t = document.createElement("div");
-            t.className = "thumb" + (idx === 0 ? " active" : "");
-            t.innerHTML = '<img src="' + src + '" alt="thumb" />';
-            t.addEventListener("click", function () {
-              mainImageEl.src = src;
-              var allThumbs = thumbRow.querySelectorAll(".thumb");
-              for (var j = 0; j < allThumbs.length; j++) {
-                allThumbs[j].classList.remove("active");
+        contentEl.innerHTML = html;
+
+        // 연락처 불러와서 CTA 링크에 적용
+        (async function applyDetailContactLinks() {
+          try {
+            const res = await fetch("/api/contact-info");
+            const data = await res.json();
+            if (!data || !data.ok) return;
+            const c = data.contact || {};
+            const $ = (id) => document.getElementById(id);
+            function setLink(el, href) {
+              if (!el) return;
+              if (href) {
+                el.href = href;
+                el.style.display = "";
+              } else {
+                el.style.display = "none";
               }
-              t.classList.add("active");
-            });
-            thumbRow.appendChild(t);
-          })(images[i], i);
+            }
+            setLink($("detailCall"), (c.phone || "").trim() ? ("tel:" + (c.phone || "").trim()) : "");
+            setLink($("detailKakao"), (c.kakao || "").trim());
+            setLink($("detailZalo"), (c.zalo || "").trim());
+            setLink($("detailTelegram"), (c.telegram || "").trim());
+          } catch (e) {
+            console.warn("상세 연락처 적용 오류:", e);
+          }
+        })();
+
+
+        // 썸네일 클릭 시 대표 이미지 교체
+        if (images.length > 1) {
+          var thumbRow = document.getElementById("thumbRow");
+          var mainImageEl = document.getElementById("mainImage");
+
+          for (var i = 0; i < images.length; i++) {
+            (function (src, idx) {
+              var t = document.createElement("div");
+              t.className = "thumb" + (idx === 0 ? " active" : "");
+              t.innerHTML = '<img src="' + src + '" alt="thumb" />';
+              t.addEventListener("click", function () {
+                mainImageEl.src = src;
+                var allThumbs = thumbRow.querySelectorAll(".thumb");
+                for (var j = 0; j < allThumbs.length; j++) {
+                  allThumbs[j].classList.remove("active");
+                }
+                t.classList.add("active");
+              });
+              thumbRow.appendChild(t);
+            })(images[i], i);
+          }
         }
       }
     }
-
-    initDetail();
 
     const langToggleBtn = document.getElementById("langToggleBtn");
     if (langToggleBtn) {

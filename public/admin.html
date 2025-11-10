@@ -519,6 +519,40 @@
             문제가 발생했을 때 이 내용을 복사해두면 복구가 수월합니다.
           </div>
         </div>
+        <!-- 하단 문의 연락처 설정 -->
+        <div class="card" style="margin-top:12px;">
+          <div class="card-title">
+            <span>5</span>
+            하단 문의 연락처 설정
+          </div>
+          <div class="form-row">
+            <label>담당자 이름 (선택)</label>
+            <input id="contactName" placeholder="예: 한이부동산 / 김OO" />
+          </div>
+          <div class="form-row">
+            <label>전화번호</label>
+            <input id="contactPhone" placeholder="예: 010-1234-5678" />
+          </div>
+          <div class="form-row">
+            <label>카카오톡 링크</label>
+            <input id="contactKakao" placeholder="예: https://pf.kakao.com/... 또는 https://open.kakao.com/..." />
+          </div>
+          <div class="form-row">
+            <label>잘로 링크</label>
+            <input id="contactZalo" placeholder="예: https://zalo.me/123456789" />
+          </div>
+          <div class="form-row">
+            <label>텔레그램 링크</label>
+            <input id="contactTelegram" placeholder="예: https://t.me/your_telegram_id" />
+          </div>
+
+          <div style="display:flex;gap:6px;margin-top:6px;">
+            <button class="btn-primary" type="button" id="saveContactBtn">저장</button>
+            <button class="btn-secondary" type="button" id="loadContactBtn">불러오기</button>
+          </div>
+          <div class="help-text">빈 칸은 메인/상세의 해당 버튼이 자동으로 숨겨집니다.</div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -1192,6 +1226,55 @@
     // ===== 초기 렌더 =====
     fetchListingsFromServerForAdmin();
     applyLanguage("ko");
+  
+    // ===== 하단 문의 연락처 설정 로드/저장 =====
+    async function adminLoadContactInfo() {
+      try {
+        const res = await fetch("/api/contact-info");
+        const data = await res.json();
+        if (data && data.ok && data.contact) {
+          const c = data.contact;
+          const $ = (id) => document.getElementById(id);
+          if ($("contactName")) $("contactName").value = c.name || "";
+          if ($("contactPhone")) $("contactPhone").value = c.phone || "";
+          if ($("contactKakao")) $("contactKakao").value = c.kakao || "";
+          if ($("contactZalo")) $("contactZalo").value = c.zalo || "";
+          if ($("contactTelegram")) $("contactTelegram").value = c.telegram || "";
+        }
+      } catch (e) {
+        console.warn("연락처 불러오기 오류:", e);
+      }
+    }
+
+    async function adminSaveContactInfo() {
+      const $ = (id) => document.getElementById(id);
+      const body = {
+        name: $("contactName") ? $("contactName").value.trim() : "",
+        phone: $("contactPhone") ? $("contactPhone").value.trim() : "",
+        kakao: $("contactKakao") ? $("contactKakao").value.trim() : "",
+        zalo: $("contactZalo") ? $("contactZalo").value.trim() : "",
+        telegram: $("contactTelegram") ? $("contactTelegram").value.trim() : ""
+      };
+      try {
+        await fetch("/api/contact-info", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        await adminLoadContactInfo();
+        alert("저장되었습니다.");
+      } catch (e) {
+        alert("저장 중 오류가 발생했습니다.");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const $ = (id) => document.getElementById(id);
+      if ($("loadContactBtn")) $("loadContactBtn").addEventListener("click", adminLoadContactInfo);
+      if ($("saveContactBtn")) $("saveContactBtn").addEventListener("click", adminSaveContactInfo);
+      adminLoadContactInfo();
+    });
+
   </script>
 </body>
 </html>
