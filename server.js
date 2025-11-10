@@ -326,6 +326,72 @@ app.post("/api/listings", async (req, res) => {
   }
 });
 
+
+// 매물 수정
+app.put("/api/listings/:id", async (req, res) => {
+  const id = req.params.id;
+  const { title, price, location, mapUrl, desc, tags, images } = req.body || {};
+  if (!title) {
+    return res.json({ ok: false, error: "제목은 필수입니다." });
+  }
+
+  const now = new Date();
+  const safeTags = Array.isArray(tags) ? tags : [];
+  const safeImages = Array.isArray(images) ? images : [];
+
+  try {
+    const updateSql = `
+      UPDATE listings
+      SET
+        title = $1,
+        price = $2,
+        location = $3,
+        map_url = $4,
+        "desc" = $5,
+        tags = $6::jsonb,
+        images = $7::jsonb,
+        updated_at = $8
+      WHERE id = $9
+      RETURNING
+        id,
+        title,
+        price,
+        location,
+        map_url AS "mapUrl",
+        "desc" AS "desc",
+        tags,
+        images,
+        contract_done AS "contractDone",
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+    `;
+    const { rows } = await pool.query(updateSql, [
+      String(title),
+      price ? String(price) : "",
+      location ? String(location) : "",
+      mapUrl ? String(mapUrl) : "",
+      desc ? String(desc) : "",
+      JSON.stringify(safeTags),
+      JSON.stringify(safeImages),
+      now,
+      id,
+    ]);
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ ok: false, error: "수정할 매물을 찾을 수 없습니다." });
+    }
+
+    const all = await pool.query(LISTING_SELECT_SQL + " ORDER BY id DESC");
+    return res.json({ ok: true, listing: rows[0], listings: all.rows });
+  } catch (e) {
+    console.error("매물 수정 오류:", e);
+    return res
+      .status(500)
+      .json({ ok: false, error: "매물을 수정하는 중 오류가 발생했습니다." });
+  }
+});
+
 // 매물 삭제
 app.delete("/api/listings/:id", async (req, res) => {
   const id = req.params.id;
