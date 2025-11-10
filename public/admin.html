@@ -943,9 +943,44 @@ async function deleteListingOnServer(id) {
       }
     }
 
+    
     // 구글 지도 짧은 주소 변환
     if (resolveMapBtn && mapUrlEl) {
-      resolveMapBtn.ad
+      resolveMapBtn.addEventListener("click", async () => {
+        const shortUrl = mapUrlEl.value.trim();
+        if (!shortUrl) {
+          alert(tr("먼저 구글 지도 링크를 입력해주세요.", "Hãy nhập link Google Maps trước."));
+          return;
+        }
+        try {
+          const res = await fetch("/api/resolve-map?url=" + encodeURIComponent(shortUrl));
+          if (!res.ok) {
+            alert(tr(
+              "주소 변환 요청에 실패했습니다. (서버 응답 없음)",
+              "Không chuyển đổi được địa chỉ. (Server không phản hồi)"
+            ));
+            return;
+          }
+          const data = await res.json();
+          if (data.fullUrl) {
+            mapUrlEl.value = data.fullUrl;
+            alert(tr("구글 지도 주소가 변환되었습니다.", "Đã chuyển đổi địa chỉ Google Maps."));
+          } else {
+            alert(tr(
+              "주소를 변환하지 못했습니다.",
+              "Không thể chuyển đổi địa chỉ."
+            ));
+          }
+        } catch (e) {
+          console.error(e);
+          alert(tr(
+            "주소 변환 중 오류가 발생했습니다.",
+            "Đã xảy ra lỗi khi chuyển đổi địa chỉ."
+          ));
+        }
+      });
+    }
+
     function startEditListing(item) {
       if (!item) return;
       editingListingId = item.id;
@@ -990,42 +1025,7 @@ async function deleteListingOnServer(id) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-dEventListener("click", async () => {
-        const shortUrl = mapUrlEl.value.trim();
-        if (!shortUrl) {
-          alert(tr("먼저 구글 지도 링크를 입력해주세요.", "Hãy nhập link Google Maps trước."));
-          return;
-        }
-        try {
-          const res = await fetch("/api/resolve-map?url=" + encodeURIComponent(shortUrl));
-          if (!res.ok) {
-            alert(tr(
-              "주소 변환 요청에 실패했습니다. (서버 응답 없음)",
-              "Không chuyển đổi được địa chỉ. (Server không phản hồi)"
-            ));
-            return;
-          }
-          const data = await res.json();
-          if (data.fullUrl) {
-            mapUrlEl.value = data.fullUrl;
-            alert(tr("구글 지도 주소가 변환되었습니다.", "Đã chuyển đổi địa chỉ Google Maps."));
-          } else {
-            alert(tr(
-              "주소를 변환하지 못했습니다.",
-              "Không thể chuyển đổi địa chỉ."
-            ));
-          }
-        } catch (e) {
-          console.error(e);
-          alert(tr(
-            "주소 변환 중 오류가 발생했습니다.",
-            "Đã xảy ra lỗi khi chuyển đổi địa chỉ."
-          ));
-        }
-      });
-    }
-
-    function renderList(list) {
+function renderList(list) {
       listContainer.innerHTML = "";
       if (!list.length) {
         listContainer.innerHTML =
