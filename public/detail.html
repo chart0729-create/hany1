@@ -75,9 +75,14 @@
     .hero-image-wrap img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain; /* 사진이 잘리지 않도록 전체 표시 */
       display: block;
+      background-color: #fff;
+      border-radius: 12px;
+      filter: brightness(1.05) contrast(1.08);
+      transition: transform 0.3s ease, filter 0.3s ease;
     }
+
     .hero-count {
       position: absolute;
       right: 10px;
@@ -383,26 +388,80 @@
       return currentLang === "vi" ? vi : ko;
     }
 
+    var STORAGE_KEY = "hany_listings";
 
-    // 서버에서 단일 매물 가져오기
-    async function fetchListingById(id) {
+    // 기본 매물 (localStorage가 비어 있을 때 사용)
+    var defaultListings = [
+      {
+        id: 1,
+        title: "푸미흥 2룸 오피스텔",
+        price: "보증금 1,000 / 월세 900",
+        location: "호치민 푸미흥",
+        desc: "보행가 까지 도보 5분, 관리비 포함. 반가구 옵션.",
+        tags: ["푸미흥", "2룸", "오피스텔", "월세"],
+        images: [
+          "https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg",
+          "https://images.pexels.com/photos/3637729/pexels-photo-3637729.jpeg"
+        ],
+        lat: 10.729,
+        lng: 106.719
+      },
+      {
+        id: 2,
+        title: "푸미흥 리버뷰 1룸",
+        price: "전세 2억 5,000",
+        location: "호치민 푸미흥 강변",
+        desc: "리버뷰, 주차 편리, 반려견 가능.",
+        tags: ["푸미흥", "1룸", "전세"],
+        images: [
+          "https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg",
+          "https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg"
+        ],
+        lat: 10.731,
+        lng: 106.72
+      },
+      {
+        id: 3,
+        title: "7군 신축 2룸 풀옵션",
+        price: "보증금 500 / 월세 700",
+        location: "호치민 7군",
+        desc: "헬스장, 수영장, 공용 라운지 이용 가능.",
+        tags: ["7군", "2룸", "월세"],
+        images: [
+          "https://images.pexels.com/photos/3637729/pexels-photo-3637729.jpeg",
+          "https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg"
+        ],
+        lat: 10.732,
+        lng: 106.714
+      }
+    ];
+
+    function loadListings() {
       try {
-        const res = await fetch("/api/listings/" + encodeURIComponent(id));
-        if (!res.ok) {
-          return null;
-        }
-        const data = await res.json();
-        if (data && data.ok && data.listing) {
-          return data.listing;
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        var parsed = JSON.parse(raw);
+        if (Object.prototype.toString.call(parsed) === "[object Array]") {
+          return parsed;
         }
         return null;
       } catch (e) {
-        console.error("상세 매물 불러오기 오류:", e);
+        console.error(e);
         return null;
       }
     }
 
-// URL에서 특정 쿼리 파라미터 추출(q 등)
+    function getListingById(id) {
+      var all = loadListings() || defaultListings;
+      for (var i = 0; i < all.length; i++) {
+        if (String(all[i].id) === String(id)) {
+          return all[i];
+        }
+      }
+      return null;
+    }
+
+    // URL에서 특정 쿼리 파라미터 추출(q 등)
     function getParamFromUrl(url, name) {
       var qIndex = url.indexOf("?");
       if (qIndex === -1) return null;
@@ -626,40 +685,13 @@
 
         // 문의 버튼
         html += '<section class="cta-card">';
-        html += '  <a id="detailCall" href="tel:01000000000" class="cta-btn primary">전화 문의</a>';
-        html += '  <a id="detailKakao" href="https://pf.kakao.com" target="_blank" class="cta-btn">카톡 문의</a>';
-        html += '  <a id="detailZalo" href="https://zalo.me/123456789" target="_blank" class="cta-btn">잘로</a>';
-        html += '  <a id="detailTelegram" href="https://t.me/your_telegram_id" target="_blank" class="cta-btn">텔레</a>';
+        html += '  <a href="tel:01000000000" class="cta-btn primary">전화 문의</a>';
+        html += '  <a href="https://pf.kakao.com" target="_blank" class="cta-btn">카톡 문의</a>';
+        html += '  <a href="https://zalo.me/123456789" target="_blank" class="cta-btn">잘로</a>';
+        html += '  <a href="https://t.me/your_telegram_id" target="_blank" class="cta-btn">텔레</a>';
         html += '</section>';
 
         contentEl.innerHTML = html;
-
-        // 연락처 불러와서 CTA 링크에 적용
-        (async function applyDetailContactLinks() {
-          try {
-            const res = await fetch("/api/contact-info");
-            const data = await res.json();
-            if (!data || !data.ok) return;
-            const c = data.contact || {};
-            const $ = (id) => document.getElementById(id);
-            function setLink(el, href) {
-              if (!el) return;
-              if (href) {
-                el.href = href;
-                el.style.display = "";
-              } else {
-                el.style.display = "none";
-              }
-            }
-            setLink($("detailCall"), (c.phone || "").trim() ? ("tel:" + (c.phone || "").trim()) : "");
-            setLink($("detailKakao"), (c.kakao || "").trim());
-            setLink($("detailZalo"), (c.zalo || "").trim());
-            setLink($("detailTelegram"), (c.telegram || "").trim());
-          } catch (e) {
-            console.warn("상세 연락처 적용 오류:", e);
-          }
-        })();
-
 
         // 썸네일 클릭 시 대표 이미지 교체
         if (images.length > 1) {
