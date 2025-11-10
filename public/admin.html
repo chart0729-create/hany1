@@ -742,6 +742,8 @@
 
     const STORAGE_KEY = "hany_listings";
 
+    let editingListingId = null;
+
     if (langToggleBtn) {
       langToggleBtn.addEventListener("click", () => {
         const next = currentLang === "ko" ? "vi" : "ko";
@@ -853,7 +855,31 @@
     }
 
     
-    async function deleteListingOnServer(id) {
+    
+    async function updateListingOnServer(id, payload) {
+      try {
+        const res = await fetch(`/api/listings/${encodeURIComponent(id)}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          throw new Error("bad status");
+        }
+        const data = await res.json();
+        if (data && data.ok && Array.isArray(data.listings)) {
+          saveListings(data.listings);
+          renderList(data.listings);
+          return true;
+        }
+        return false;
+      } catch (e) {
+        console.error("매물 수정 API 오류:", e);
+        return false;
+      }
+    }
+
+async function deleteListingOnServer(id) {
       try {
         const res = await fetch(`/api/listings/${encodeURIComponent(id)}`, {
           method: "DELETE",
@@ -910,11 +936,61 @@
       document
         .querySelectorAll(".tag-group input[type=checkbox]")
         .forEach((el) => (el.checked = false));
+
+      editingListingId = null;
+      if (saveBtn) {
+        saveBtn.textContent = tr("매물 등록", "Đăng tin");
+      }
     }
 
     // 구글 지도 짧은 주소 변환
     if (resolveMapBtn && mapUrlEl) {
-      resolveMapBtn.addEventListener("click", async () => {
+      resolveMapBtn.ad
+    function startEditListing(item) {
+      if (!item) return;
+      editingListingId = item.id;
+
+      // 폼 채우기
+      titleEl.value = item.title || "";
+      priceEl.value = item.price || "";
+      locationEl.value = item.location || "";
+      mapUrlEl.value = item.mapUrl || "";
+      descEl.value = item.desc || "";
+
+      // 태그 체크
+      const tags = Array.isArray(item.tags) ? item.tags : [];
+      document
+        .querySelectorAll(".tag-group input[type=checkbox]")
+        .forEach((el) => {
+          el.checked = tags.includes(el.value);
+        });
+
+      // 이미지 미리보기
+      clearPreview();
+      const imgs = Array.isArray(item.images) ? item.images : [];
+      imgs.forEach((url) => {
+        if (!url) return;
+        currentImages.push(url);
+        const img = document.createElement("img");
+        img.src = url;
+        img.style.width = "60px";
+        img.style.height = "60px";
+        img.style.objectFit = "cover";
+        img.style.borderRadius = "10px";
+        img.style.border = "1px solid #e5e7eb";
+        previewEl.appendChild(img);
+      });
+
+      // 저장 버튼 텍스트 변경
+      if (saveBtn) {
+        saveBtn.textContent = tr("매물 수정 저장", "Lưu chỉnh sửa tin");
+      }
+
+      // 편의를 위해 폼 위치로 스크롤
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+dEventListener("click", async () => {
         const shortUrl = mapUrlEl.value.trim();
         if (!shortUrl) {
           alert(tr("먼저 구글 지도 링크를 입력해주세요.", "Hãy nhập link Google Maps trước."));
@@ -981,10 +1057,19 @@
             </div>
           </div>
           <div>
+            <button class="btn-secondary btn-edit" type="button" data-id="${item.id}">${currentLang === "vi" ? "Sửa" : "수정"}</button>
             <button class="btn-secondary btn-contract" type="button" data-id="${item.id}">${contractBtnLabel}</button>
             <button class="btn-danger" type="button" data-id="${item.id}">${currentLang === "vi" ? "Xóa" : "삭제"}</button>
           </div>
         `;
+
+
+        const editBtn = li.querySelector("button.btn-edit");
+        if (editBtn) {
+          editBtn.addEventListener("click", () => {
+            startEditListing(item);
+          });
+        }
 
         const contractBtn = li.querySelector("button.btn-contract");
         if (contractBtn) {
@@ -1040,6 +1125,19 @@
       };
 
       (async () => {
+        // 수정 모드인 경우
+        if (editingListingId !== null) {
+          const ok = await updateListingOnServer(editingListingId, payload);
+          if (!ok) {
+            alert(tr("매물 수정 중 오류가 발생했습니다.", "Có lỗi khi cập nhật tin."));
+            return;
+          }
+          alert(tr("매물이 수정되었습니다.", "Tin đã được cập nhật."));
+          clearForm();
+          return;
+        }
+
+        // 신규 등록
         const result = await createListingOnServer(payload);
         if (!result || !result.ok) {
           alert(tr("매물 등록 중 오류가 발생했습니다.", "Có lỗi khi đăng tin."));

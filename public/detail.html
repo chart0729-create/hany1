@@ -603,7 +603,87 @@
 
     
     
-    // 매물 한 건 렌더링
+    
+    // 상세 하단 연락처 바에 서버 정보 적용
+    async function applyDetailContactBar() {
+      try {
+        const res = await fetch("/api/contact-info");
+        const data = await res.json();
+        if (!data || !data.ok) return;
+
+        const c = data.contact || {};
+        const phone = (c.phone || "").trim();
+        const kakao = (c.kakao || "").trim();
+        const zalo = (c.zalo || "").trim();
+        const telegram = (c.telegram || "").trim();
+
+        const section = document.getElementById("detailContactSection");
+        const telBtn = document.getElementById("detailTelBtn");
+        const kakaoBtn = document.getElementById("detailKakaoBtn");
+        const zaloBtn = document.getElementById("detailZaloBtn");
+        const telegramBtn = document.getElementById("detailTelegramBtn");
+
+        if (!section) return;
+
+        let visibleCount = 0;
+
+        // 전화
+        if (telBtn) {
+          if (phone) {
+            const telNum = phone.replace(/[^0-9+]/g, "");
+            telBtn.href = "tel:" + telNum;
+            telBtn.style.display = "";
+            visibleCount++;
+          } else {
+            telBtn.style.display = "none";
+          }
+        }
+
+        // 카카오
+        if (kakaoBtn) {
+          if (kakao) {
+            kakaoBtn.href = kakao;
+            kakaoBtn.style.display = "";
+            visibleCount++;
+          } else {
+            kakaoBtn.style.display = "none";
+          }
+        }
+
+        // 잘로
+        if (zaloBtn) {
+          if (zalo) {
+            zaloBtn.href = zalo;
+            zaloBtn.style.display = "";
+            visibleCount++;
+          } else {
+            zaloBtn.style.display = "none";
+          }
+        }
+
+        // 텔레그램
+        if (telegramBtn) {
+          if (telegram) {
+            telegramBtn.href = telegram;
+            telegramBtn.style.display = "";
+            visibleCount++;
+          } else {
+            telegramBtn.style.display = "none";
+          }
+        }
+
+        // 아무 것도 없으면 섹션 숨기기
+        if (visibleCount === 0) {
+          section.style.display = "none";
+        } else {
+          section.style.display = "flex";
+        }
+      } catch (e) {
+        console.error("상세 연락처 불러오기 오류:", e);
+      }
+    }
+
+// 매물 한 건 렌더링
     function renderListing(listing, contentEl) {
       document.title = (listing.title || "매물 상세") + " - Hany 부동산";
 
@@ -674,12 +754,12 @@
         html += '</section>';
       }
 
-      // 문의 버튼
-      html += '<section class="cta-card">';
-      html += '  <a href="tel:01000000000" class="cta-btn primary">전화 문의</a>';
-      html += '  <a href="https://pf.kakao.com" target="_blank" class="cta-btn">카톡 문의</a>';
-      html += '  <a href="https://zalo.me/123456789" target="_blank" class="cta-btn">잘로</a>';
-      html += '  <a href="https://t.me/your_telegram_id" target="_blank" class="cta-btn">텔레</a>';
+      // 문의 버튼 (서버 연락처 연동)
+      html += '<section class="cta-card" id="detailContactSection" style="display:none;">';
+      html += '  <a id="detailTelBtn" href="#" class="cta-btn primary">전화 문의</a>';
+      html += '  <a id="detailKakaoBtn" href="#" target="_blank" class="cta-btn">카톡 문의</a>';
+      html += '  <a id="detailZaloBtn" href="#" target="_blank" class="cta-btn">잘로</a>';
+      html += '  <a id="detailTelegramBtn" href="#" target="_blank" class="cta-btn">텔레</a>';
       html += '</section>';
 
       contentEl.innerHTML = html;
@@ -706,9 +786,10 @@
           })(images[i], i);
         }
       }
+          applyDetailContactBar();
     }
 
-    // 상세 페이지 진입 로직
+   // 상세 페이지 진입 로직
     var idParam = getQueryParam("id");
    var contentEl = document.getElementById("content");
 
