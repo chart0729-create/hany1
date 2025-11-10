@@ -383,80 +383,26 @@
       return currentLang === "vi" ? vi : ko;
     }
 
-    var STORAGE_KEY = "hany_listings";
 
-    // 기본 매물 (localStorage가 비어 있을 때 사용)
-    var defaultListings = [
-      {
-        id: 1,
-        title: "푸미흥 2룸 오피스텔",
-        price: "보증금 1,000 / 월세 900",
-        location: "호치민 푸미흥",
-        desc: "보행가 까지 도보 5분, 관리비 포함. 반가구 옵션.",
-        tags: ["푸미흥", "2룸", "오피스텔", "월세"],
-        images: [
-          "https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg",
-          "https://images.pexels.com/photos/3637729/pexels-photo-3637729.jpeg"
-        ],
-        lat: 10.729,
-        lng: 106.719
-      },
-      {
-        id: 2,
-        title: "푸미흥 리버뷰 1룸",
-        price: "전세 2억 5,000",
-        location: "호치민 푸미흥 강변",
-        desc: "리버뷰, 주차 편리, 반려견 가능.",
-        tags: ["푸미흥", "1룸", "전세"],
-        images: [
-          "https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg",
-          "https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg"
-        ],
-        lat: 10.731,
-        lng: 106.72
-      },
-      {
-        id: 3,
-        title: "7군 신축 2룸 풀옵션",
-        price: "보증금 500 / 월세 700",
-        location: "호치민 7군",
-        desc: "헬스장, 수영장, 공용 라운지 이용 가능.",
-        tags: ["7군", "2룸", "월세"],
-        images: [
-          "https://images.pexels.com/photos/3637729/pexels-photo-3637729.jpeg",
-          "https://images.pexels.com/photos/259580/pexels-photo-259580.jpeg"
-        ],
-        lat: 10.732,
-        lng: 106.714
-      }
-    ];
-
-    function loadListings() {
+    // 서버에서 단일 매물 가져오기
+    async function fetchListingById(id) {
       try {
-        var raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return null;
-        var parsed = JSON.parse(raw);
-        if (Object.prototype.toString.call(parsed) === "[object Array]") {
-          return parsed;
+        const res = await fetch("/api/listings/" + encodeURIComponent(id));
+        if (!res.ok) {
+          return null;
+        }
+        const data = await res.json();
+        if (data && data.ok && data.listing) {
+          return data.listing;
         }
         return null;
       } catch (e) {
-        console.error(e);
+        console.error("상세 매물 불러오기 오류:", e);
         return null;
       }
     }
 
-    function getListingById(id) {
-      var all = loadListings() || defaultListings;
-      for (var i = 0; i < all.length; i++) {
-        if (String(all[i].id) === String(id)) {
-          return all[i];
-        }
-      }
-      return null;
-    }
-
-    // URL에서 특정 쿼리 파라미터 추출(q 등)
+// URL에서 특정 쿼리 파라미터 추출(q 등)
     function getParamFromUrl(url, name) {
       var qIndex = url.indexOf("?");
       if (qIndex === -1) return null;
