@@ -3,6 +3,9 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import pkg from "pg";
+const { Pool } = pkg;
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -15,6 +18,37 @@ app.use(express.static(path.join(__dirname, "public")));
 // JSON 바디 용량 제한 상향 (이미지 base64 등 큰 데이터용)
 app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ limit: "20mb", extended: true }));
+
+// ========== Render Postgres 연결 (매물용) ==========
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+});
+
+async function initDb() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS listings (
+        id SERIAL PRIMARY KEY,
+        title TEXT NOT NULL,
+        price TEXT,
+        location TEXT,
+        map_url TEXT,
+        "desc" TEXT,
+        tags JSONB DEFAULT '[]'::jsonb,
+        images JSONB DEFAULT '[]'::jsonb,
+        contract_done BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+    console.log("✅ Postgres listings 테이블 준비 완료");
+  } catch (err) {
+    console.error("❌ Postgres 초기화 오류:", err);
+  }
+}
+
+initDb();
 
 // ========== 간단 파일 기반 사용자 DB ==========
 const USERS_DB_PATH = path.join(__dirname, "users.db.json");
@@ -187,112 +221,173 @@ app.post("/api/contact-info", (req, res) => {
   return res.json({ ok: true, contact: loadContactInfo() });
 });
 
-// ========== 간단 파일 기반 매물 DB ==========
-const LISTINGS_DB_PATH = path.join(__dirname, "listings.db.json");
+// ========== 매물 API (Postgres DB 사용) ==========
 
-function loadListingsFromFile() {
-  try {
-    const raw = fs.readFileSync(LISTINGS_DB_PATH, "utf-8");
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    // 파일이 없거나 JSON 파싱 오류면 빈 배열
-    return [];
-  }
-}
-
-function saveListingsToFile(listings) {
-  try {
-    fs.writeFileSync(
-      LISTINGS_DB_PATH,
-      JSON.stringify(listings, null, 2),
-      "utf-8"
-    );
-  } catch (e) {
-    console.error("매물 DB 저장 오류:", e);
-  }
-}
-
-// ========== 매물 API ==========
+const LISTING_SELECT_SQL = `
+  SELECT
+    id,
+    title,
+    price,
+    location,
+    map_url AS "mapUrl",
+    "desc" AS "desc",
+    COALESCE(tags, '[]'::jsonb) AS tags,
+    COALESCE(images, '[]'::jsonb) AS images,
+    contract_done AS "contractDone",
+    created_at AS "createdAt",
+    updated_at AS "updatedAt"
+  FROM listings
+`;
 
 // 전체 매물 조회
-app.get("/api/listings", (req, res) => {
-  const list = loadListingsFromFile();
-  return res.json({ ok: true, listings: list });
+app.get("/api/listings", async (req, res) => {
+  try {
+    const { rows } = await pool.query(LISTING_SELECT_SQL + " ORDER BY id DESC");
+    return res.json({ ok: true, listings: rows });
+  } catch (e) {
+    console.error("매물 목록 조회 오류:", e);
+    return res
+      .status(500)
+      .json({ ok: false, error: "매물 목록을 불러오는 중 오류가 발생했습니다." });
+  }
 });
 
 // 단일 매물 조회
-app.get("/api/listings/:id", (req, res) => {
-  const list = loadListingsFromFile();
+app.get("/api/listings/:id", async (req, res) => {
   const id = req.params.id;
-  const item = list.find((x) => String(x.id) === String(id));
-  if (!item) {
-    return res.status(404).json({ ok: false, error: "해당 매물을 찾을 수 없습니다." });
+  try {
+    const { rows } = await pool.query(LISTING_SELECT_SQL + " WHERE id = $1", [id]);
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ ok: false, error: "해당 매물을 찾을 수 없습니다." });
+    }
+    return res.json({ ok: true, listing: rows[0] });
+  } catch (e) {
+    console.error("단일 매물 조회 오류:", e);
+    return res
+      .status(500)
+      .json({ ok: false, error: "매물을 불러오는 중 오류가 발생했습니다." });
   }
-  return res.json({ ok: true, listing: item });
 });
 
 // 매물 등록
-app.post("/api/listings", (req, res) => {
+app.post("/api/listings", async (req, res) => {
   const { title, price, location, mapUrl, desc, tags, images } = req.body || {};
   if (!title) {
     return res.json({ ok: false, error: "제목은 필수입니다." });
   }
 
-  const list = loadListingsFromFile();
-  const nextId =
-    list.length > 0 ? Math.max(...list.map((x) => Number(x.id) || 0)) + 1 : 1;
+  const now = new Date();
+  const safeTags = Array.isArray(tags) ? tags : [];
+  const safeImages = Array.isArray(images) ? images : [];
 
-  const now = new Date().toISOString();
+  try {
+    const insertSql = `
+      INSERT INTO listings
+        (title, price, location, map_url, "desc", tags, images, contract_done, created_at, updated_at)
+      VALUES
+        ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, $8, $9, $10)
+      RETURNING
+        id,
+        title,
+        price,
+        location,
+        map_url AS "mapUrl",
+        "desc" AS "desc",
+        tags,
+        images,
+        contract_done AS "contractDone",
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+    `;
+    const { rows } = await pool.query(insertSql, [
+      String(title),
+      price ? String(price) : "",
+      location ? String(location) : "",
+      mapUrl ? String(mapUrl) : "",
+      desc ? String(desc) : "",
+      JSON.stringify(safeTags),
+      JSON.stringify(safeImages),
+      false,
+      now,
+      now,
+    ]);
+    const newItem = rows[0];
 
-  const newItem = {
-    id: nextId,
-    title: String(title),
-    price: price ? String(price) : "",
-    location: location ? String(location) : "",
-    mapUrl: mapUrl ? String(mapUrl) : "",
-    desc: desc ? String(desc) : "",
-    tags: Array.isArray(tags) ? tags : [],
-    images: Array.isArray(images) ? images : [],
-    contractDone: false,
-    createdAt: now,
-    updatedAt: now,
-  };
+    const all = await pool.query(LISTING_SELECT_SQL + " ORDER BY id DESC");
 
-  list.push(newItem);
-  saveListingsToFile(list);
-
-  return res.json({ ok: true, listing: newItem, listings: list });
+    return res.json({ ok: true, listing: newItem, listings: all.rows });
+  } catch (e) {
+    console.error("매물 등록 오류:", e);
+    return res
+      .status(500)
+      .json({ ok: false, error: "매물을 저장하는 중 오류가 발생했습니다." });
+  }
 });
 
 // 매물 삭제
-app.delete("/api/listings/:id", (req, res) => {
-  const list = loadListingsFromFile();
+app.delete("/api/listings/:id", async (req, res) => {
   const id = req.params.id;
-  const remaining = list.filter((x) => String(x.id) !== String(id));
-  if (remaining.length === list.length) {
-    return res.status(404).json({ ok: false, error: "삭제할 매물을 찾을 수 없습니다." });
+  try {
+    const result = await pool.query("DELETE FROM listings WHERE id = $1", [id]);
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ ok: false, error: "삭제할 매물을 찾을 수 없습니다." });
+    }
+
+    const { rows } = await pool.query(LISTING_SELECT_SQL + " ORDER BY id DESC");
+    return res.json({ ok: true, listings: rows });
+  } catch (e) {
+    console.error("매물 삭제 오류:", e);
+    return res
+      .status(500)
+      .json({ ok: false, error: "매물을 삭제하는 중 오류가 발생했습니다." });
   }
-  saveListingsToFile(remaining);
-  return res.json({ ok: true, listings: remaining });
 });
 
 // 매물 계약 상태 변경
-app.post("/api/listings/:id/contract", (req, res) => {
-  const list = loadListingsFromFile();
+app.post("/api/listings/:id/contract", async (req, res) => {
   const id = req.params.id;
-  const idx = list.findIndex((x) => String(x.id) === String(id));
-  if (idx === -1) {
-    return res
-      .status(404)
-      .json({ ok: false, error: "계약 상태를 변경할 매물을 찾을 수 없습니다." });
-  }
   const done = !!(req.body && req.body.done);
-  list[idx].contractDone = done;
-  list[idx].updatedAt = new Date().toISOString();
-  saveListingsToFile(list);
-  return res.json({ ok: true, listing: list[idx], listings: list });
+
+  try {
+    const updateSql = `
+      UPDATE listings
+      SET contract_done = $1,
+          updated_at = NOW()
+      WHERE id = $2
+      RETURNING
+        id,
+        title,
+        price,
+        location,
+        map_url AS "mapUrl",
+        "desc" AS "desc",
+        tags,
+        images,
+        contract_done AS "contractDone",
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+    `;
+    const { rows } = await pool.query(updateSql, [done, id]);
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ ok: false, error: "계약 상태를 변경할 매물을 찾을 수 없습니다." });
+    }
+
+    const all = await pool.query(LISTING_SELECT_SQL + " ORDER BY id DESC");
+    return res.json({ ok: true, listing: rows[0], listings: all.rows });
+  } catch (e) {
+    console.error("계약 상태 변경 오류:", e);
+    return res
+      .status(500)
+      .json({ ok: false, error: "계약 상태를 저장하는 중 오류가 발생했습니다." });
+  }
 });
+
 
 // ========== 짧은 구글맵 URL → 최종 긴 URL로 변환 ==========
 app.get("/api/resolve-map", async (req, res) => {
