@@ -140,6 +140,53 @@ app.get("/api/users", (req, res) => {
 });
 
 
+
+// ========== 하단 문의 연락처 DB (전화/카톡/잘로/텔레) ==========
+const CONTACT_DB_PATH = path.join(__dirname, "contact.db.json");
+
+function loadContactInfo() {
+  try {
+    const raw = fs.readFileSync(CONTACT_DB_PATH, "utf-8");
+    const j = JSON.parse(raw);
+    return {
+      name: typeof j.name === "string" ? j.name : "",
+      phone: typeof j.phone === "string" ? j.phone : "",
+      kakao: typeof j.kakao === "string" ? j.kakao : "",
+      zalo: typeof j.zalo === "string" ? j.zalo : "",
+      telegram: typeof j.telegram === "string" ? j.telegram : ""
+    };
+  } catch (e) {
+    return { name: "", phone: "", kakao: "", zalo: "", telegram: "" };
+  }
+}
+
+function saveContactInfo(info) {
+  const safe = {
+    name: typeof info.name === "string" ? info.name.trim() : "",
+    phone: typeof info.phone === "string" ? info.phone.trim() : "",
+    kakao: typeof info.kakao === "string" ? info.kakao.trim() : "",
+    zalo: typeof info.zalo === "string" ? info.zalo.trim() : "",
+    telegram: typeof info.telegram === "string" ? info.telegram.trim() : ""
+  };
+  try {
+    fs.writeFileSync(CONTACT_DB_PATH, JSON.stringify(safe, null, 2), "utf-8");
+  } catch (e) {
+    console.error("연락처 저장 오류:", e);
+  }
+}
+
+// 현재 연락처 조회
+app.get("/api/contact-info", (req, res) => {
+  return res.json({ ok: true, contact: loadContactInfo() });
+});
+
+// 연락처 저장 (관리자에서 설정)
+app.post("/api/contact-info", (req, res) => {
+  const { name, phone, kakao, zalo, telegram } = req.body || {};
+  saveContactInfo({ name, phone, kakao, zalo, telegram });
+  return res.json({ ok: true, contact: loadContactInfo() });
+});
+
 // ========== 간단 파일 기반 매물 DB ==========
 const LISTINGS_DB_PATH = path.join(__dirname, "listings.db.json");
 
