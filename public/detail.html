@@ -470,10 +470,39 @@
       }
       return null;
     }
+    // 구글 지도 URL이 %3F, %26 같은 인코딩이나 &amp; 등으로 섞여 있을 때
+    // 보기 좋게 한 번 정리해 주는 함수
+    function normalizeMapUrl(raw) {
+      if (!raw) return "";
+      var url = String(raw).trim();
 
-    // google 지도 URL에서 위도/경도 추출
+      // 여러 번 인코딩된 경우(예: https://www.google.com/maps%3Fdaddr%3D...)
+      try {
+        for (var i = 0; i < 3; i++) {
+          if (url.indexOf("%3") === -1 && url.indexOf("%2") === -1) break;
+          var decoded = decodeURIComponent(url);
+          if (decoded === url) break;
+          url = decoded;
+        }
+      } catch (e) {
+        // decode 실패해도 그냥 원본 사용
+      }
+
+      // &amp; / \u0026amp; 등을 실제 & 로 치환
+      url = url
+        .replace(/\\u0026amp;/g, "&")
+        .replace(/\\u0026/g, "&")
+        .replace(/&amp;/g, "&");
+
+      return url;
+    }
+
+       // google 지도 URL에서 위도/경도 추출
     function extractCoordsFromMapUrl(url) {
       if (!url) return null;
+
+      // 먼저 한 번 정리
+      url = normalizeMapUrl(url);
 
       // 패턴 1: .../@10.729,106.719,17z/...
       var atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)[,/]/);
@@ -487,14 +516,23 @@
         return { lat: dMatch[1], lng: dMatch[2] };
       }
 
-      // 패턴 3: 쿼리스트링에 daddr=10.789,106.685 형태
-      var daddrMatch = url.match(/daddr=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+      // 패턴 3: ?daddr=10.7890857,106.6856635 (...)
+      var daddrMatch = url.match(/[?&](?:daddr|destination)=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
       if (daddrMatch && daddrMatch.length >= 3) {
         return { lat: daddrMatch[1], lng: daddrMatch[2] };
       }
 
+      // 패턴 4: q=10.7890857,106.6856635 형태 (검색 좌표)
+      var qVal = getParamFromUrl(url, "q");
+      if (qVal && qVal.match(/-?\d+\.?\d*,-?\d+\.?\d*/)) {
+        var parts = qVal.split(",");
+        return { lat: parts[0], lng: parts[1] };
+      }
+
+      // 어떤 패턴도 못 찾으면 null
       return null;
     }
+
 // "지도 크게 보기" 외부 링크용 URL
     function buildMapOpenUrl(item) {
       if (item.mapUrl) return item.mapUrl; // 관리자에서 넣은 구글 URL 그대로
